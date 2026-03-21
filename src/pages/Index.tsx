@@ -82,6 +82,7 @@ const Index = () => {
     const errs: string[] = [];
     if (step === 1) {
       if (!name.trim()) errs.push('Nome é obrigatório');
+      else if (name.trim().split(/\s+/).length < 2) errs.push('Informe seu nome completo (nome e sobrenome)');
       if (!role.trim()) errs.push('Cargo é obrigatório');
       if (!company.trim()) errs.push('Empresa é obrigatória');
     }
