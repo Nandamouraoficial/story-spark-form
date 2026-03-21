@@ -1,25 +1,26 @@
 
 
-## Parte 3: Aprimorar Transformação de Depoimentos
+## Duas Correções Urgentes
 
-### Situação atual
-A Edge Function `generate-marketing` já existe e faz a transformação via IA. O que falta é incorporar as regras específicas da Parte 3 no prompt para garantir que mesmo respostas simples sejam transformadas em conteúdo forte.
+### 1. Página de Obrigado
+A tela de confirmação **existe no código** (step 6, `ConfirmationScreen`). O problema é provavelmente que a versão publicada (`echo-craft-07.lovable.app`) está desatualizada — precisa republicar. No preview do Lovable, a tela funciona normalmente.
 
-### O que muda
+Mesmo assim, vou verificar se não há bug de renderização e garantir que o componente está correto.
 
-#### 1. `supabase/functions/generate-marketing/index.ts`
-Aprimorar o `systemPrompt` com as regras de transformação:
+### 2. Chip "Outro..." com campo de texto inline
 
-- Adicionar regras explícitas de **priorização**: mudança de comportamento, clareza estratégica, tomada de decisão, posicionamento
-- Adicionar **blacklist de linguagem genérica**: "foi incrível", "me ajudou muito", "foi bom", "é divertida" — com instrução para substituir por frases concretas
-- Adicionar **contexto de público**: mulheres executivas e líderes, linguagem sofisticada
-- Adicionar **exemplo de transformação** no prompt: entrada "criei um plano e implementei" → saída "Passei de um cenário sem direção para um plano estruturado e execução clara"
-- Reforçar que mesmo respostas curtas/simples devem gerar saídas fortes e utilizáveis
+#### `src/pages/Index.tsx`
+- Adicionar estado `otherOpen: Record<number, boolean>` e `otherText: Record<number, string>` para controlar o campo "Outro" por pergunta
+- Após os chips existentes, renderizar um chip especial `"Outro..."` que ao ser clicado faz toggle de `otherOpen[i]`
+- Quando aberto, exibir um campo `<Textarea>` inline abaixo dos chips com placeholder "Escreva sua opção..."
+- O texto de "Outro" é incorporado na resposta combinada junto com os chips selecionados e o texto livre
+- Estilo do chip "Outro..." diferenciado (borda tracejada) para indicar que é especial
 
-Também ajustar as descriptions do tool calling para reforçar:
-- `quotes`: mudar de 3 para "2-3 frases destacáveis" e reforçar foco em decisão e posicionamento
-- `fullTestimonial`: reforçar estrutura História (antes + depois) + Resultado + Frase final de impacto
+#### Lógica de combinação
+Ao avançar ou ao editar, a resposta combina: `✦ chips selecionados` + `✦ Outro: texto do outro` + texto livre do textarea principal.
 
-### Impacto
-Apenas a Edge Function é alterada. Nenhuma mudança no frontend — a estrutura de dados (`MarketingOutput`) permanece idêntica.
+### Arquivos alterados
+- `src/pages/Index.tsx` — adicionar estados e UI para "Outro..."
+
+Nenhuma alteração no `chip-options.ts` (o "Outro" é renderizado diretamente no componente, não nos dados).
 
