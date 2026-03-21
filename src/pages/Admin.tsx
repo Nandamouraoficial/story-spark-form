@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -7,8 +7,13 @@ import {
   exportToCSV,
   mentorshipLabels,
   MentorshipType,
+  conditionalQuestions,
 } from '@/lib/testimonial-data';
 import { Download, Star, Lock, MessageSquareQuote, Users, TrendingUp, ThumbsUp, ArrowRight, Sparkles } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { MarketingOutput } from '@/lib/marketing-types';
+import MarketingModal from '@/components/MarketingModal';
+import { toast } from '@/hooks/use-toast';
 
 const ADMIN_PASSWORD = 'admin2024';
 
@@ -24,6 +29,11 @@ const Admin = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [marketingModal, setMarketingModal] = useState(false);
+  const [marketingData, setMarketingData] = useState<MarketingOutput | null>(null);
+  const [marketingLoading, setMarketingLoading] = useState(false);
+  const [marketingAttribution, setMarketingAttribution] = useState('');
+  const [marketingCache, setMarketingCache] = useState<Record<string, MarketingOutput>>({});
 
   useEffect(() => {
     if (authenticated) {
@@ -46,6 +56,48 @@ const Admin = () => {
       setError(true);
     }
   };
+
+  const handleGenerateMarketing = useCallback(async (t: Testimonial) => {
+    setMarketingAttribution(`${t.name}, ${t.role} — ${t.company}`);
+    setMarketingModal(true);
+
+    if (marketingCache[t.id]) {
+      setMarketingData(marketingCache[t.id]);
+      return;
+    }
+
+    setMarketingLoading(true);
+    setMarketingData(null);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-marketing', {
+        body: {
+          name: t.name,
+          role: t.role,
+          company: t.company,
+          mentorshipType: t.mentorshipType,
+          answers: t.answers,
+          impactPhrase: t.impactPhrase,
+          measurableResult: t.measurableResult,
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      setMarketingData(data as MarketingOutput);
+      setMarketingCache(prev => ({ ...prev, [t.id]: data as MarketingOutput }));
+    } catch (err: any) {
+      toast({
+        title: 'Erro ao gerar conteúdo',
+        description: err?.message || 'Tente novamente em alguns segundos.',
+        variant: 'destructive',
+      });
+      setMarketingModal(false);
+    } finally {
+      setMarketingLoading(false);
+    }
+  }, [marketingCache]);
 
   const handleExport = () => {
     const csv = exportToCSV(testimonials);
@@ -264,14 +316,33 @@ const Admin = () => {
                   <p className="text-xs text-muted-foreground">
                     {new Date(t.timestamp).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
                   </p>
-                  <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${t.wouldRecommend ? 'bg-green-500/10 text-green-600' : 'bg-destructive/10 text-destructive'}`}>
-                    {t.wouldRecommend ? '✓ Indicaria' : '✗ Não indicaria'}
-                  </span>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleGenerateMarketing(t)}
+                      className="gap-1.5 text-xs rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
+                    >
+                      <Sparkles className="h-3.5 w-3.5" />
+                      Gerar Marketing
+                    </Button>
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${t.wouldRecommend ? 'bg-green-500/10 text-green-600' : 'bg-destructive/10 text-destructive'}`}>
+                      {t.wouldRecommend ? '✓ Indicaria' : '✗ Não indicaria'}
+                    </span>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         )}
+
+        <MarketingModal
+          open={marketingModal}
+          onOpenChange={setMarketingModal}
+          data={marketingData}
+          loading={marketingLoading}
+          attribution={marketingAttribution}
+        />
       </div>
     </div>
   );
