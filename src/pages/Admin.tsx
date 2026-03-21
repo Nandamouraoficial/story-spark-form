@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -7,8 +7,13 @@ import {
   exportToCSV,
   mentorshipLabels,
   MentorshipType,
+  conditionalQuestions,
 } from '@/lib/testimonial-data';
 import { Download, Star, Lock, MessageSquareQuote, Users, TrendingUp, ThumbsUp, ArrowRight, Sparkles } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { MarketingOutput } from '@/lib/marketing-types';
+import MarketingModal from '@/components/MarketingModal';
+import { toast } from '@/hooks/use-toast';
 
 const ADMIN_PASSWORD = 'admin2024';
 
