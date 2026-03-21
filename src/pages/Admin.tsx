@@ -37,7 +37,7 @@ const Admin = () => {
 
   useEffect(() => {
     if (authenticated) {
-      setTestimonials(getTestimonials());
+      getTestimonials().then(setTestimonials);
     }
   }, [authenticated]);
 

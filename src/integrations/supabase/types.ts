@@ -14,7 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      testimonials: {
+        Row: {
+          after_text: string
+          answers: Json
+          authorized: boolean
+          before_text: string
+          company: string
+          created_at: string
+          id: string
+          impact_phrase: string
+          measurable_result: string
+          mentorship_type: string
+          name: string
+          photo: string | null
+          quote: string
+          result_text: string
+          role: string
+          satisfaction_score: number
+          summary: string
+          would_recommend: boolean
+        }
+        Insert: {
+          after_text?: string
+          answers?: Json
+          authorized?: boolean
+          before_text?: string
+          company?: string
+          created_at?: string
+          id?: string
+          impact_phrase?: string
+          measurable_result?: string
+          mentorship_type: string
+          name: string
+          photo?: string | null
+          quote?: string
+          result_text?: string
+          role?: string
+          satisfaction_score?: number
+          summary?: string
+          would_recommend?: boolean
+        }
+        Update: {
+          after_text?: string
+          answers?: Json
+          authorized?: boolean
+          before_text?: string
+          company?: string
+          created_at?: string
+          id?: string
+          impact_phrase?: string
+          measurable_result?: string
+          mentorship_type?: string
+          name?: string
+          photo?: string | null
+          quote?: string
+          result_text?: string
+          role?: string
+          satisfaction_score?: number
+          summary?: string
+          would_recommend?: boolean
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

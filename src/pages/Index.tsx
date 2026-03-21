@@ -174,7 +174,7 @@ const Index = () => {
         photo,
         ...smart,
       };
-      saveTestimonial(testimonial);
+      saveTestimonial(testimonial).catch((err) => console.error('Failed to save:', err));
       navigateStep(6, 'forward');
       return;
     }
