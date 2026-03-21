@@ -232,7 +232,7 @@ const Index = () => {
               </h1>
 
               <p className="text-muted-foreground text-base sm:text-lg max-w-md mx-auto leading-relaxed mb-6">
-                São apenas 4 perguntas rápidas. Responda com suas palavras — simples e direto.
+                Leva menos de 5 minutos. Responda com suas palavras — simples e direto.
               </p>
 
               <div className="glass-card rounded-2xl p-5 max-w-md mx-auto mb-8">
