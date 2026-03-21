@@ -407,11 +407,48 @@ const Index = () => {
                       onChange={(e) => {
                         updateAnswer(i, e.target.value);
                         autoResize(e.target);
+                        // Clear warning for this field on edit
+                        if (qualityWarnings[i]) {
+                          setQualityWarnings((prev) => {
+                            const next = { ...prev };
+                            delete next[i];
+                            return next;
+                          });
+                        }
                       }}
                       placeholder="Escreva sua resposta aqui..."
-                      className="rounded-xl min-h-[100px] resize-none premium-input auto-resize"
+                      className={`rounded-xl min-h-[100px] resize-none premium-input auto-resize transition-all duration-300 ${
+                        qualityWarnings[i] ? 'border-amber-400/60 ring-1 ring-amber-400/30' : ''
+                      }`}
                       maxLength={1000}
                     />
+                    {/* Quality warning inline */}
+                    {qualityWarnings[i] && (
+                      <div className="animate-scale-fade-in space-y-3">
+                        <div className="flex items-start gap-2 text-sm text-amber-600 dark:text-amber-400">
+                          <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                          <span>Pode detalhar melhor? Nos ajude com um exemplo real ou situação concreta.</span>
+                        </div>
+                        <div className="glass-card rounded-xl p-3 border border-primary/10">
+                          <p className="text-xs text-muted-foreground mb-1 font-medium">💡 Exemplo de resposta forte:</p>
+                          <p className="text-xs text-muted-foreground/80 italic leading-relaxed">
+                            "{getExampleForQuestion(mentorshipType as MentorshipType, i)}"
+                          </p>
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-xs text-amber-600 dark:text-amber-400 font-medium">
+                            {getComplementaryPrompt()}
+                          </Label>
+                          <Textarea
+                            value={complementaryAnswers[i] || ''}
+                            onChange={(e) => setComplementaryAnswers((prev) => ({ ...prev, [i]: e.target.value }))}
+                            placeholder="Descreva uma situação concreta..."
+                            className="rounded-xl min-h-[70px] resize-none premium-input text-sm"
+                            maxLength={500}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
