@@ -493,7 +493,9 @@ const Index = () => {
                       }
                       onChange={(e) => {
                         const freeText = e.target.value;
-                        const chipPrefix = selected.length > 0 ? '✦ ' + selected.join(' · ') : '';
+                        const otherVal = otherText[i]?.trim();
+                        const allChips = otherVal ? [...selected, `Outro: ${otherVal}`] : selected;
+                        const chipPrefix = allChips.length > 0 ? '✦ ' + allChips.join(' · ') : '';
                         const combined = [chipPrefix, freeText].filter(Boolean).join('\n');
                         updateAnswer(i, combined);
                         autoResize(e.target);
