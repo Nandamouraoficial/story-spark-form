@@ -274,14 +274,33 @@ const Admin = () => {
                   <p className="text-xs text-muted-foreground">
                     {new Date(t.timestamp).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
                   </p>
-                  <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${t.wouldRecommend ? 'bg-green-500/10 text-green-600' : 'bg-destructive/10 text-destructive'}`}>
-                    {t.wouldRecommend ? '✓ Indicaria' : '✗ Não indicaria'}
-                  </span>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleGenerateMarketing(t)}
+                      className="gap-1.5 text-xs rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
+                    >
+                      <Sparkles className="h-3.5 w-3.5" />
+                      Gerar Marketing
+                    </Button>
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${t.wouldRecommend ? 'bg-green-500/10 text-green-600' : 'bg-destructive/10 text-destructive'}`}>
+                      {t.wouldRecommend ? '✓ Indicaria' : '✗ Não indicaria'}
+                    </span>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         )}
+
+        <MarketingModal
+          open={marketingModal}
+          onOpenChange={setMarketingModal}
+          data={marketingData}
+          loading={marketingLoading}
+          attribution={marketingAttribution}
+        />
       </div>
     </div>
   );
