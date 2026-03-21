@@ -1,58 +1,22 @@
 
 
-## Formulário Inteligente de Coleta de Depoimentos
+## Fix: Playfair Display not applying to h1/h2
 
-### Visão Geral
-Formulário multi-step premium para captar depoimentos estruturados de mentoradas, com lógica condicional baseada no tipo de mentoria, geração automática de resumos e exportação CSV.
+### Problem
+The CSS rule in `index.css` (line 99-101) sets `font-family: 'Playfair Display', serif` on headings, but Tailwind's default `font-sans` from its preflight/base styles may override it due to specificity.
 
-### Design System
-- **Cores**: #3eafe0 (principal), #eaeaf1 (neutro), branco como base
-- **Tipografia**: Playfair Display (títulos) + Inter (corpo)
-- **Estilo**: Minimalista, sofisticado, mobile-first, bastante espaço em branco
+### Solution
+Add `fontFamily` configuration to `tailwind.config.ts` to define `display` and `sans` font families, then apply `font-display` class to headings — or more simply, strengthen the CSS rule.
 
-### Fluxo de Telas (Step-by-step)
+**Approach**: Add `!important` to the heading font-family rule in `index.css` to ensure it wins over Tailwind's base styles, or better yet, configure Tailwind's `fontFamily` theme:
 
-**Tela 1 — Boas-vindas**
-- Headline em Playfair Display: "Sua experiência pode transformar outras carreiras"
-- Subtítulo e contexto sobre autorização de uso
-- Botão CTA "Começar"
+1. **`tailwind.config.ts`** — Add font families under `theme.extend`:
+   - `fontFamily.display: ['Playfair Display', 'serif']`
+   - `fontFamily.sans: ['Inter', 'sans-serif']`
 
-**Tela 2 — Identificação**
-- Nome completo, cargo atual, empresa/segmento (obrigatórios)
+2. **`src/index.css`** — Update the base layer body to use `font-family: theme('fontFamily.sans')` and headings to use `font-family: theme('fontFamily.display')` — or simply keep current rules but ensure no override.
 
-**Tela 3 — Segmentação**
-- Radio buttons elegantes para tipo de mentoria (A/B/C/D)
+3. **`src/pages/Index.tsx`** — Add `font-display` (mapped to Playfair) class to all `h1` and `h2` elements as a belt-and-suspenders approach, ensuring the font applies regardless of specificity issues.
 
-**Tela 4 — Perguntas Condicionais**
-- 4 perguntas específicas renderizadas dinamicamente conforme a escolha anterior
-- Textareas com placeholders orientadores
-
-**Tela 5 — Bloco Complementar**
-- Frase de impacto (texto curto)
-- Resultado mensurável (texto)
-- Nota de satisfação (slider 0-10)
-- Indicaria? (Sim/Não)
-
-**Tela 6 — Autorização e Envio**
-- Checkbox obrigatório de autorização
-- Upload de foto opcional
-- Botão "Enviar meu depoimento"
-
-**Tela 7 — Confirmação**
-- Mensagem de agradecimento
-
-### Funcionalidades Inteligentes
-- **Geração automática client-side** ao submeter:
-  - Resumo curto (2-3 linhas) combinando respostas-chave
-  - Destaque de frase forte (quote) extraído da resposta de maior impacto
-  - Separação em "Antes / Depois / Resultado" a partir das respostas condicionais
-- **Armazenamento em localStorage** como JSON estruturado
-- **Painel admin simples** (rota /admin) para visualizar depoimentos e exportar CSV
-
-### Estrutura de Dados
-Cada depoimento armazena: identificação, tipo de mentoria, respostas condicionais, bloco complementar, nota, indicação, autorização, foto (base64), timestamp, e campos gerados (resumo, quote, antes/depois/resultado).
-
-### Páginas
-- `/` — Formulário multi-step
-- `/admin` — Painel de visualização + exportação CSV (protegido por senha simples via prompt)
+This is a minimal, targeted fix — just ensuring the font declarations win.
 
