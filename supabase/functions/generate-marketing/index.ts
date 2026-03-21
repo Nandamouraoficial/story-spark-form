@@ -105,19 +105,19 @@ Gere o conteúdo de marketing estruturado.`;
                     type: "string",
                     description: "Frase de impacto curta baseada na transformação",
                   },
-                  fullTestimonial: {
+                    fullTestimonial: {
                     type: "string",
                     description:
-                      "Depoimento completo para página de vendas: Antes → Experiência → Transformação → Resultado → Diferencial → Recomendação. Parágrafos curtos.",
+                      "Depoimento completo estruturado: História (Antes — situação/dor) → Experiência (Durante — o que viveu) → Transformação (Depois — mudança concreta) → Resultado (concreto ou comportamental) → Frase final de impacto. Parágrafos curtos. Linguagem sofisticada, sem clichês.",
                   },
                   shortVersion: {
                     type: "string",
-                    description: "Versão curta (2-3 linhas) para redes sociais",
+                    description: "Versão curta (2-3 linhas) para redes sociais, focada em transformação e resultado",
                   },
                   quotes: {
                     type: "array",
                     items: { type: "string" },
-                    description: "3 frases fortes e destacáveis para artes, carrosséis e anúncios",
+                    description: "2-3 frases fortes e destacáveis para artes e carrosséis, com foco em decisão, posicionamento e clareza estratégica. Nunca usar linguagem genérica.",
                   },
                   classification: {
                     type: "object",
