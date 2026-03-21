@@ -260,7 +260,7 @@ const Admin = () => {
                 )}
 
                 {/* Footer */}
-                <div className="px-5 sm:px-6 py-4 mt-2 flex items-center justify-between border-t border-border/30">
+                <div className="px-4 sm:px-6 py-4 mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-border/30">
                   <p className="text-xs text-muted-foreground">
                     {new Date(t.timestamp).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
                   </p>

@@ -524,7 +524,7 @@ const Index = () => {
                 {/* Photo Upload with Preview */}
                 <div className="space-y-3">
                   <Label>Foto (opcional, máx. 2MB)</Label>
-                  <div className="flex items-center gap-5">
+                  <div className="flex flex-col sm:flex-row items-center gap-5">
                     {photo && (
                       <div className="animate-scale-fade-in">
                         <img
