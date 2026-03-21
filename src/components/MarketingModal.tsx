@@ -84,9 +84,22 @@ export default function MarketingModal({ open, onOpenChange, data, loading, attr
             <Sparkles className="h-5 w-5 text-primary" />
             Conteúdo de Marketing
           </DialogTitle>
-          {attribution && (
-            <p className="text-sm text-muted-foreground">{attribution}</p>
-          )}
+          <div className="flex items-center justify-between">
+            {attribution && (
+              <p className="text-sm text-muted-foreground">{attribution}</p>
+            )}
+            {data && !loading && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => exportMarketingPDF(data, attribution)}
+                className="gap-1.5 text-xs rounded-lg shrink-0"
+              >
+                <Download className="h-3.5 w-3.5" />
+                Exportar PDF
+              </Button>
+            )}
+          </div>
         </DialogHeader>
 
         {loading ? (
