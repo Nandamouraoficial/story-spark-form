@@ -44,6 +44,10 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 196 73% 56%;
+
+    --glass-bg: 0 0% 100% / 0.7;
+    --glass-border: 0 0% 100% / 0.2;
+    --glow-primary: 196 73% 56% / 0.15;
   }
 
   .dark {
@@ -75,6 +79,10 @@
     --input: 220 15% 20%;
     --ring: 196 73% 56%;
 
+    --glass-bg: 220 20% 10% / 0.7;
+    --glass-border: 220 20% 30% / 0.3;
+    --glow-primary: 196 73% 56% / 0.2;
+
     --sidebar-background: 220 20% 6%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 196 73% 56%;
@@ -97,5 +105,130 @@
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-display;
+  }
+}
+
+/* Glass morphism card */
+@layer components {
+  .glass-card {
+    background: hsl(var(--glass-bg));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid hsl(var(--glass-border));
+    box-shadow:
+      0 4px 24px -4px hsl(var(--glow-primary)),
+      0 1px 2px 0 hsl(220 20% 15% / 0.04);
+  }
+
+  .glow-shadow {
+    box-shadow:
+      0 0 20px hsl(var(--glow-primary)),
+      0 4px 16px -4px hsl(220 20% 15% / 0.08);
+  }
+
+  /* Premium input focus */
+  .premium-input {
+    @apply transition-all duration-300 ease-out;
+  }
+
+  .premium-input:focus {
+    box-shadow: 0 0 0 3px hsl(var(--glow-primary)), 0 1px 2px 0 hsl(220 20% 15% / 0.05);
+    border-color: hsl(var(--primary));
+  }
+
+  /* Auto-resize textarea */
+  .auto-resize {
+    overflow: hidden;
+    transition: height 0.2s ease-out;
+  }
+
+  /* Selection card with ripple */
+  .selection-card {
+    @apply relative overflow-hidden transition-all duration-300 ease-out;
+  }
+
+  .selection-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at var(--ripple-x, 50%) var(--ripple-y, 50%), hsl(var(--primary) / 0.08), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.4s ease-out;
+  }
+
+  .selection-card:hover::after,
+  .selection-card.selected::after {
+    opacity: 1;
+  }
+
+  /* Gradient track for slider */
+  .gradient-track {
+    background: linear-gradient(90deg, 
+      hsl(0 70% 55%),
+      hsl(40 90% 55%),
+      hsl(120 60% 45%)
+    );
+  }
+
+  /* Animated background blobs */
+  .bg-blob {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.15;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Sparkle particles */
+  .sparkle-particle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: hsl(var(--primary));
+    pointer-events: none;
+  }
+
+  /* Draw checkmark SVG */
+  .draw-check-path {
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+  }
+
+  /* Progress dot */
+  .progress-dot {
+    @apply transition-all duration-500 ease-out;
+  }
+
+  .progress-dot.active {
+    @apply bg-primary scale-125;
+  }
+
+  .progress-dot.completed {
+    @apply bg-primary;
+  }
+
+  .progress-dot.upcoming {
+    @apply bg-border;
+  }
+
+  /* Stagger children animation */
+  .stagger-children > * {
+    opacity: 0;
+  }
+
+  .stagger-children.animate > *:nth-child(1) { animation: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0s forwards; }
+  .stagger-children.animate > *:nth-child(2) { animation: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards; }
+  .stagger-children.animate > *:nth-child(3) { animation: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards; }
+  .stagger-children.animate > *:nth-child(4) { animation: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards; }
+  .stagger-children.animate > *:nth-child(5) { animation: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.4s forwards; }
+  .stagger-children.animate > *:nth-child(6) { animation: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.5s forwards; }
+  .stagger-children.animate > *:nth-child(7) { animation: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.6s forwards; }
+  .stagger-children.animate > *:nth-child(8) { animation: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.7s forwards; }
+
+  @keyframes fade-up {
+    0% { opacity: 0; transform: translateY(24px); }
+    100% { opacity: 1; transform: translateY(0); }
   }
 }
