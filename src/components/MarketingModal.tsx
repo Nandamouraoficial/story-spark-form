@@ -4,7 +4,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MarketingOutput } from '@/lib/marketing-types';
-import { Copy, Check, Sparkles, FileText, MessageSquare, Quote, LayoutList } from 'lucide-react';
+import { Copy, Check, Sparkles, FileText, MessageSquare, Quote, LayoutList, Download } from 'lucide-react';
+import { exportMarketingPDF } from '@/lib/export-marketing-pdf';
 import { toast } from '@/hooks/use-toast';
 
 interface MarketingModalProps {
