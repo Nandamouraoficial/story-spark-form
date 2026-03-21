@@ -29,6 +29,11 @@ const Admin = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [marketingModal, setMarketingModal] = useState(false);
+  const [marketingData, setMarketingData] = useState<MarketingOutput | null>(null);
+  const [marketingLoading, setMarketingLoading] = useState(false);
+  const [marketingAttribution, setMarketingAttribution] = useState('');
+  const [marketingCache, setMarketingCache] = useState<Record<string, MarketingOutput>>({});
 
   useEffect(() => {
     if (authenticated) {
