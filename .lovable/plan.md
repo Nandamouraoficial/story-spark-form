@@ -1,39 +1,28 @@
 
 
-## Validação Inteligente de Respostas — Anti-Genérico
+## Problema Identificado
 
-### O que muda
+Os depoimentos estão sendo salvos em **localStorage** (armazenamento local do navegador). Quando a Bel preencheu o formulário no celular dela, os dados ficaram **apenas no navegador dela**. Quando você acessa o `/admin` no seu computador, o localStorage está vazio — por isso aparece "Nenhum depoimento coletado ainda".
 
-Adicionar validação de qualidade no step 3 (perguntas condicionais) e no step 4 (frase de impacto), impedindo respostas vagas com orientação elegante e não-agressiva.
+## Solução: Persistir no Banco de Dados
 
-### Arquivos
+Migrar o armazenamento de localStorage para o banco de dados do Lovable Cloud, para que depoimentos preenchidos por qualquer pessoa em qualquer dispositivo apareçam no admin.
 
-#### 1. `src/lib/response-validation.ts` (novo)
-Utilitário de validação com:
-- **Lista de padrões genéricos** em português: "foi bom", "me ajudou", "estava triste", "estou melhor", "siga em frente", "é divertida", etc.
-- **Função `analyzeResponseQuality(text: string)`** que retorna `{ isGeneric: boolean; reason: string }`:
-  - Genérica se < 8 palavras
-  - Genérica se match em padrões vagos (regex)
-  - Genérica se não contém indicadores de contexto/ação/mudança/exemplo (heurística por presença de verbos no passado, palavras como "quando", "porque", "exemplo", "resultado", "consegui", "antes", "depois", etc.)
-- **Função `getExampleForQuestion(mentorshipType, questionIndex)`** que retorna um exemplo forte contextualizado para cada pergunta/tipo de mentoria
-- **Função `getComplementaryPrompt()`** que retorna a pergunta complementar obrigatória
+### 1. Criar tabela `testimonials` no banco
+- Colunas: id, name, role, company, mentorship_type, answers (jsonb), impact_phrase, measurable_result, satisfaction_score, would_recommend, authorized, photo, summary, quote, before_text, after_text, result_text, created_at
+- RLS: INSERT liberado para anônimos (formulário público), SELECT protegido (apenas via senha no admin)
 
-#### 2. `src/pages/Index.tsx` (modificar)
-No step 3 (perguntas condicionais):
-- Ao tentar avançar, validar cada resposta com `analyzeResponseQuality()`
-- Se genérica: exibir inline abaixo do textarea afetado:
-  - Mensagem suave: "Pode detalhar melhor? Nos ajude com um exemplo real ou situação concreta."
-  - Exemplo contextualizado em bloco sutil (glass card pequeno)
-  - Campo complementar obrigatório: "Pode dar um exemplo específico do que aconteceu?" (aparece com animação fade-in)
-- Estilo: tom orientativo, ícone de 💡, cor primary suave, sem vermelho agressivo
-- Só permite avançar quando todas as respostas passam na validação (ou o campo complementar é preenchido)
+### 2. Atualizar `src/lib/testimonial-data.ts`
+- `saveTestimonial()` → inserir no banco via Supabase client
+- `getTestimonials()` → buscar do banco via Supabase client
+- Manter funções síncronas de fallback para não quebrar nada
 
-No step 4 (frase de impacto):
-- Mesma validação para o campo `impactPhrase`
+### 3. Atualizar `src/pages/Index.tsx`
+- Chamar a versão async de `saveTestimonial()` no submit
 
-### UX
-- Feedback aparece com fade-in suave (animação CSS existente)
-- Cor de borda do textarea muda para um amarelo/dourado suave (warning, não erro)
-- Mensagem desaparece quando o usuário edita e a resposta passa
-- Não bloqueia digitação, apenas o avanço
+### 4. Atualizar `src/pages/Admin.tsx`
+- Carregar depoimentos do banco (async) em vez de localStorage
+
+### Resultado
+O depoimento da Bel (e de qualquer pessoa futura) aparecerá no admin independente do dispositivo.
 
