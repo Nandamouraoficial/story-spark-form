@@ -169,7 +169,7 @@ const Index = () => {
         {step === 1 && (
           <div className="space-y-6 animate-in fade-in duration-500">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-semibold text-foreground">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-foreground font-display">
                 Sobre você
               </h2>
               <p className="text-muted-foreground mt-1 text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
@@ -217,7 +217,7 @@ const Index = () => {
         {step === 2 && (
           <div className="space-y-6 animate-in fade-in duration-500">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-semibold text-foreground">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-foreground font-display">
                 Tipo de mentoria
               </h2>
               <p className="text-muted-foreground mt-1 text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
@@ -254,7 +254,7 @@ const Index = () => {
         {step === 3 && mentorshipType && (
           <div className="space-y-6 animate-in fade-in duration-500">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-semibold text-foreground">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-foreground font-display">
                 Sua experiência
               </h2>
               <p className="text-muted-foreground mt-1 text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
@@ -286,7 +286,7 @@ const Index = () => {
         {step === 4 && (
           <div className="space-y-6 animate-in fade-in duration-500">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-semibold text-foreground">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-foreground font-display">
                 Para enriquecer
               </h2>
               <p className="text-muted-foreground mt-1 text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
@@ -366,7 +366,7 @@ const Index = () => {
         {step === 5 && (
           <div className="space-y-6 animate-in fade-in duration-500">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-semibold text-foreground">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-foreground font-display">
                 Quase lá
               </h2>
               <p className="text-muted-foreground mt-1 text-sm" style={{ fontFamily: 'Inter, sans-serif' }}>
@@ -435,7 +435,7 @@ const Index = () => {
               <CheckCircle2 className="h-8 w-8 text-primary" />
             </div>
             <div className="space-y-3">
-              <h2 className="text-2xl sm:text-3xl font-semibold text-foreground">
+              <h2 className="text-2xl sm:text-3xl font-semibold text-foreground font-display">
                 Obrigada!
               </h2>
               <p className="text-muted-foreground max-w-sm mx-auto leading-relaxed" style={{ fontFamily: 'Inter, sans-serif' }}>
