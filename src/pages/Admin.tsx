@@ -176,7 +176,7 @@ const Admin = () => {
               >
                 {/* Card header */}
                 <div className="p-5 sm:p-6 pb-0">
-                  <div className="flex items-start justify-between gap-3">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                     <div className="flex items-center gap-3">
                       {t.photo ? (
                         <img
@@ -196,7 +196,7 @@ const Admin = () => {
                         <p className="text-sm text-muted-foreground">{t.role} · {t.company}</p>
                       </div>
                     </div>
-                    <div className="flex flex-col items-end gap-2 shrink-0">
+                    <div className="flex flex-row sm:flex-col items-center sm:items-end gap-2 shrink-0">
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-medium">
                         <span>{mentorshipIcons[t.mentorshipType]}</span>
                         {mentorshipLabels[t.mentorshipType].split('/')[0].split('(')[0].trim()}
