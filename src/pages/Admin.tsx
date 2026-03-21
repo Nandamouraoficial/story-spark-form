@@ -208,10 +208,10 @@ const Admin = () => {
 
                 {/* Quote highlight */}
                 {t.quote && (
-                  <div className="px-5 sm:px-6 pt-5">
-                    <div className="relative bg-primary/[0.04] rounded-xl p-5 border-l-[3px] border-primary/40">
-                      <span className="absolute -top-2 left-3 text-5xl text-primary/20 font-display leading-none select-none">"</span>
-                      <p className="font-display italic text-foreground text-base sm:text-lg leading-relaxed pl-4">
+                  <div className="px-4 sm:px-6 pt-5">
+                    <div className="relative bg-primary/[0.04] rounded-xl p-4 sm:p-5 border-l-[3px] border-primary/40">
+                      <span className="absolute -top-2 left-2 sm:left-3 text-4xl sm:text-5xl text-primary/20 font-display leading-none select-none">"</span>
+                      <p className="font-display italic text-foreground text-sm sm:text-lg leading-relaxed pl-3 sm:pl-4">
                         {t.quote}
                       </p>
                     </div>
