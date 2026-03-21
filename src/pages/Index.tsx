@@ -143,7 +143,7 @@ const Index = () => {
         {step === 0 && (
           <div className="text-center space-y-8 animate-in fade-in duration-500">
             <div className="space-y-4">
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-foreground leading-tight tracking-tight">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-foreground leading-tight tracking-tight font-display">
                 Sua experiência pode transformar outras carreiras
               </h1>
               <p className="text-muted-foreground text-base sm:text-lg max-w-md mx-auto leading-relaxed" style={{ fontFamily: 'Inter, sans-serif' }}>
