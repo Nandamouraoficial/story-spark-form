@@ -14,7 +14,7 @@ import {
   saveTestimonial,
   Testimonial,
 } from '@/lib/testimonial-data';
-import { ArrowRight, ArrowLeft, Send, Upload, Check, Sparkles, Rocket, Target, Lightbulb, Linkedin } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Send, Upload, Check, Sparkles, Rocket, Target, Lightbulb, Linkedin, AlertCircle } from 'lucide-react';
 
 const TOTAL_STEPS = 7;
 
