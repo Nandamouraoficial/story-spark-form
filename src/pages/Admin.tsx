@@ -57,7 +57,49 @@ const Admin = () => {
     }
   };
 
-  const handleExport = () => {
+  const handleGenerateMarketing = useCallback(async (t: Testimonial) => {
+    setMarketingAttribution(`${t.name}, ${t.role} — ${t.company}`);
+    setMarketingModal(true);
+
+    if (marketingCache[t.id]) {
+      setMarketingData(marketingCache[t.id]);
+      return;
+    }
+
+    setMarketingLoading(true);
+    setMarketingData(null);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-marketing', {
+        body: {
+          name: t.name,
+          role: t.role,
+          company: t.company,
+          mentorshipType: t.mentorshipType,
+          answers: t.answers,
+          impactPhrase: t.impactPhrase,
+          measurableResult: t.measurableResult,
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      setMarketingData(data as MarketingOutput);
+      setMarketingCache(prev => ({ ...prev, [t.id]: data as MarketingOutput }));
+    } catch (err: any) {
+      toast({
+        title: 'Erro ao gerar conteúdo',
+        description: err?.message || 'Tente novamente em alguns segundos.',
+        variant: 'destructive',
+      });
+      setMarketingModal(false);
+    } finally {
+      setMarketingLoading(false);
+    }
+  }, [marketingCache]);
+
+
     const csv = exportToCSV(testimonials);
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
