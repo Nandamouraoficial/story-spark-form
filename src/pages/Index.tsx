@@ -56,6 +56,10 @@ const Index = () => {
   const [photo, setPhoto] = useState<string | undefined>(undefined);
 
   const [errors, setErrors] = useState<string[]>([]);
+  const [qualityWarnings, setQualityWarnings] = useState<Record<number, QualityAnalysis>>({});
+  const [complementaryAnswers, setComplementaryAnswers] = useState<Record<number, string>>({});
+  const [impactQuality, setImpactQuality] = useState<QualityAnalysis | null>(null);
+  const [impactComplementary, setImpactComplementary] = useState('');
 
   // Auto-resize textarea refs
   const textareaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
