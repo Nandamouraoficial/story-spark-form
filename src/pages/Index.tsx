@@ -227,7 +227,7 @@ const Index = () => {
               </div>
 
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-foreground leading-tight tracking-tight font-display mb-5">
-                Sua experiência pode<br />
+                Sua experiência pode {' '}
                 <span className="text-primary">transformar</span> outras carreiras
               </h1>
 
