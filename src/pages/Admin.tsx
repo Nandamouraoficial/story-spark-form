@@ -99,7 +99,7 @@ const Admin = () => {
     }
   }, [marketingCache]);
 
-
+  const handleExport = () => {
     const csv = exportToCSV(testimonials);
     const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
