@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
+import { analyzeResponseQuality, getExampleForQuestion, getComplementaryPrompt, QualityAnalysis } from '@/lib/response-validation';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -13,7 +14,7 @@ import {
   saveTestimonial,
   Testimonial,
 } from '@/lib/testimonial-data';
-import { ArrowRight, ArrowLeft, Send, Upload, Check, Sparkles, Rocket, Target, Lightbulb, Linkedin } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Send, Upload, Check, Sparkles, Rocket, Target, Lightbulb, Linkedin, AlertCircle } from 'lucide-react';
 
 const TOTAL_STEPS = 7;
 
@@ -55,6 +56,10 @@ const Index = () => {
   const [photo, setPhoto] = useState<string | undefined>(undefined);
 
   const [errors, setErrors] = useState<string[]>([]);
+  const [qualityWarnings, setQualityWarnings] = useState<Record<number, QualityAnalysis>>({});
+  const [complementaryAnswers, setComplementaryAnswers] = useState<Record<number, string>>({});
+  const [impactQuality, setImpactQuality] = useState<QualityAnalysis | null>(null);
+  const [impactComplementary, setImpactComplementary] = useState('');
 
   // Auto-resize textarea refs
   const textareaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
@@ -91,9 +96,40 @@ const Index = () => {
     }
     if (step === 3) {
       if (answers.some((a) => !a.trim())) errs.push('Responda todas as perguntas');
+      else {
+        const warnings: Record<number, QualityAnalysis> = {};
+        let hasGeneric = false;
+        answers.forEach((a, i) => {
+          const analysis = analyzeResponseQuality(a);
+          if (analysis.isGeneric) {
+            // If complementary answer is filled and substantial, allow pass
+            const comp = complementaryAnswers[i]?.trim() || '';
+            if (comp.length < 20) {
+              warnings[i] = analysis;
+              hasGeneric = true;
+            }
+          }
+        });
+        setQualityWarnings(warnings);
+        if (hasGeneric) errs.push('Algumas respostas precisam de mais detalhes');
+      }
     }
     if (step === 4) {
       if (!impactPhrase.trim()) errs.push('Preencha a frase de impacto');
+      else {
+        const analysis = analyzeResponseQuality(impactPhrase);
+        if (analysis.isGeneric) {
+          const comp = impactComplementary.trim();
+          if (comp.length < 20) {
+            setImpactQuality(analysis);
+            errs.push('A frase de impacto precisa de mais detalhes');
+          } else {
+            setImpactQuality(null);
+          }
+        } else {
+          setImpactQuality(null);
+        }
+      }
       if (wouldRecommend === null) errs.push('Indique se recomendaria');
     }
     if (step === 5) {
@@ -371,11 +407,48 @@ const Index = () => {
                       onChange={(e) => {
                         updateAnswer(i, e.target.value);
                         autoResize(e.target);
+                        // Clear warning for this field on edit
+                        if (qualityWarnings[i]) {
+                          setQualityWarnings((prev) => {
+                            const next = { ...prev };
+                            delete next[i];
+                            return next;
+                          });
+                        }
                       }}
                       placeholder="Escreva sua resposta aqui..."
-                      className="rounded-xl min-h-[100px] resize-none premium-input auto-resize"
+                      className={`rounded-xl min-h-[100px] resize-none premium-input auto-resize transition-all duration-300 ${
+                        qualityWarnings[i] ? 'border-amber-400/60 ring-1 ring-amber-400/30' : ''
+                      }`}
                       maxLength={1000}
                     />
+                    {/* Quality warning inline */}
+                    {qualityWarnings[i] && (
+                      <div className="animate-scale-fade-in space-y-3">
+                        <div className="flex items-start gap-2 text-sm text-amber-600 dark:text-amber-400">
+                          <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                          <span>Pode detalhar melhor? Nos ajude com um exemplo real ou situação concreta.</span>
+                        </div>
+                        <div className="glass-card rounded-xl p-3 border border-primary/10">
+                          <p className="text-xs text-muted-foreground mb-1 font-medium">💡 Exemplo de resposta forte:</p>
+                          <p className="text-xs text-muted-foreground/80 italic leading-relaxed">
+                            "{getExampleForQuestion(mentorshipType as MentorshipType, i)}"
+                          </p>
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-xs text-amber-600 dark:text-amber-400 font-medium">
+                            {getComplementaryPrompt()}
+                          </Label>
+                          <Textarea
+                            value={complementaryAnswers[i] || ''}
+                            onChange={(e) => setComplementaryAnswers((prev) => ({ ...prev, [i]: e.target.value }))}
+                            placeholder="Descreva uma situação concreta..."
+                            className="rounded-xl min-h-[70px] resize-none premium-input text-sm"
+                            maxLength={500}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -402,11 +475,42 @@ const Index = () => {
                   </Label>
                   <Input
                     value={impactPhrase}
-                    onChange={(e) => setImpactPhrase(e.target.value)}
+                    onChange={(e) => {
+                      setImpactPhrase(e.target.value);
+                      if (impactQuality) setImpactQuality(null);
+                    }}
                     placeholder="Ex: Descobri que era possível recomeçar com segurança"
                     maxLength={200}
-                    className="rounded-xl h-12 premium-input"
+                    className={`rounded-xl h-12 premium-input transition-all duration-300 ${
+                      impactQuality ? 'border-amber-400/60 ring-1 ring-amber-400/30' : ''
+                    }`}
                   />
+                  {impactQuality && (
+                    <div className="animate-scale-fade-in space-y-3 mt-2">
+                      <div className="flex items-start gap-2 text-sm text-amber-600 dark:text-amber-400">
+                        <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                        <span>Pode detalhar melhor? Inclua um contexto ou resultado concreto.</span>
+                      </div>
+                      <div className="glass-card rounded-xl p-3 border border-primary/10">
+                        <p className="text-xs text-muted-foreground mb-1 font-medium">💡 Exemplo:</p>
+                        <p className="text-xs text-muted-foreground/80 italic leading-relaxed">
+                          "Descobri que era possível recomeçar com segurança — e hoje tenho uma empresa própria com 12 clientes."
+                        </p>
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs text-amber-600 dark:text-amber-400 font-medium">
+                          {getComplementaryPrompt()}
+                        </Label>
+                        <Textarea
+                          value={impactComplementary}
+                          onChange={(e) => setImpactComplementary(e.target.value)}
+                          placeholder="Descreva uma situação concreta..."
+                          className="rounded-xl min-h-[70px] resize-none premium-input text-sm"
+                          maxLength={500}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label>
