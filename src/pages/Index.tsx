@@ -62,6 +62,8 @@ const Index = () => {
   const [impactQuality, setImpactQuality] = useState<QualityAnalysis | null>(null);
   const [impactComplementary, setImpactComplementary] = useState('');
   const [selectedChips, setSelectedChips] = useState<Record<number, string[]>>({});
+  const [otherOpen, setOtherOpen] = useState<Record<number, boolean>>({});
+  const [otherText, setOtherText] = useState<Record<number, string>>({});
 
   // Auto-resize textarea refs
   const textareaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
