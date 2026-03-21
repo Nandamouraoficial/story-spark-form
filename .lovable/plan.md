@@ -1,31 +1,34 @@
 
 
-## Admin Premium — Cards Visuais com Destaque para Quotes e Notas
+## Ajustes de Responsividade — Formulário e Admin
 
-### O que muda
+### Problemas Identificados
 
-Refatorar `/admin` com o mesmo nível visual premium do formulário: glass morphism, animated blobs no background, cards com hierarchy visual clara, inline password field (substituindo `prompt()`), e stats resumidos no topo.
+1. **Admin — Card header**: O layout `flex justify-between` com avatar+nome à esquerda e badge+estrelas à direita quebra em telas < 400px. O badge e as estrelas ficam apertados.
 
-### Mudanças em `src/pages/Admin.tsx`
+2. **Admin — Stats grid**: `grid-cols-3` sem breakpoint mobile — em telas muito pequenas (320px) os cards ficam comprimidos.
 
-1. **Login inline** — Substituir `prompt()` nativo por um campo de senha elegante com glass card, ícone de lock, e botão estilizado
+3. **Admin — Before/After/Result**: Já tem `grid-cols-1 sm:grid-cols-3` (OK), mas o texto dentro pode ter `line-clamp-4` que corta conteúdo no mobile sem indicação visual.
 
-2. **Header com stats** — Adicionar cards de resumo no topo: total de depoimentos, nota média, % que indicariam
+4. **Formulário — Background blobs**: Tamanhos fixos (`w-[500px]`, `w-[400px]`) podem causar scroll horizontal em telas pequenas.
 
-3. **Background premium** — Mesmos blobs animados e gradiente sutil do formulário
+5. **Formulário — Welcome title**: O `<br>` fixo no h1 pode criar quebra estranha em telas muito pequenas.
 
-4. **Cards de depoimento redesenhados**:
-   - Glass morphism (`glass-card` class já existe no CSS)
-   - Avatar maior (48px) com ring/glow na borda
-   - Quote em destaque: fonte maior, Playfair Display italic, aspas decorativas grandes (`"`) em cor primary com opacidade, fundo sutil com borda esquerda gradiente
-   - Badge de mentoria com ícone/emoji contextual (🚀 🎯 ⚡ 💼)
-   - Nota de satisfação com estrelas visuais (filled stars) em vez de número
-   - Seção Antes/Depois/Resultado com ícones e visual mais rico (bordas coloridas, ícones de seta)
-   - Indicação com badge verde/vermelho
-   - Hover com elevação sutil (shadow transition)
-   - Entrada animada com staggered fade-up
+6. **Formulário — Photo upload**: Layout `flex items-center gap-5` com preview + upload area lado a lado pode ficar apertado no mobile.
 
-5. **Botão de exportação** — Estilo premium com hover glow, consistente com o formulário
+7. **Admin — Quote text**: `text-base sm:text-lg` está OK, mas o padding `pl-4` + aspas decorativas podem ocupar muito espaço horizontal no mobile.
 
-### Nenhum arquivo novo — apenas `src/pages/Admin.tsx`
+### Mudanças
+
+**`src/pages/Index.tsx`**:
+- Background blobs: adicionar `max-w-full` ou reduzir tamanhos com classes responsivas
+- Welcome h1: remover `<br>` fixo, deixar quebra natural
+- Photo upload section: `flex-col sm:flex-row` para empilhar no mobile
+- Botão "Enviar": garantir que não transborde com texto + ícone
+
+**`src/pages/Admin.tsx`**:
+- Card header: empilhar avatar/nome e badge/estrelas verticalmente no mobile (`flex-col sm:flex-row`)
+- Stats grid: `grid-cols-1 sm:grid-cols-3` para empilhar no mobile pequeno (ou manter 3 cols com texto menor)
+- Quote section: reduzir padding lateral no mobile
+- Footer do card: `flex-wrap` para evitar overflow
 
