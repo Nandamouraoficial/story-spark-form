@@ -140,7 +140,7 @@ const Admin = () => {
 
         {/* Stats */}
         {stats && (
-          <div className="grid grid-cols-3 gap-3 sm:gap-4 opacity-0 animate-fade-up-delay-1">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 opacity-0 animate-fade-up-delay-1">
             <div className="glass-card rounded-xl p-4 sm:p-5 text-center">
               <Users className="h-5 w-5 text-primary mx-auto mb-2" />
               <p className="text-2xl sm:text-3xl font-semibold text-foreground">{stats.total}</p>
