@@ -14,6 +14,7 @@ import {
   saveTestimonial,
   Testimonial,
 } from '@/lib/testimonial-data';
+import { getChipsForQuestion } from '@/lib/chip-options';
 import { ArrowRight, ArrowLeft, Send, Upload, Check, Sparkles, Rocket, Target, Lightbulb, Linkedin, AlertCircle } from 'lucide-react';
 
 const TOTAL_STEPS = 7;
@@ -60,6 +61,7 @@ const Index = () => {
   const [complementaryAnswers, setComplementaryAnswers] = useState<Record<number, string>>({});
   const [impactQuality, setImpactQuality] = useState<QualityAnalysis | null>(null);
   const [impactComplementary, setImpactComplementary] = useState('');
+  const [selectedChips, setSelectedChips] = useState<Record<number, string[]>>({});
 
   // Auto-resize textarea refs
   const textareaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
@@ -393,7 +395,10 @@ const Index = () => {
                 </p>
               </div>
               <div className="space-y-6">
-                {conditionalQuestions[mentorshipType as MentorshipType].map((q, i) => (
+                {conditionalQuestions[mentorshipType as MentorshipType].map((q, i) => {
+                  const chips = getChipsForQuestion(mentorshipType as MentorshipType, i);
+                  const selected = selectedChips[i] || [];
+                  return (
                   <div key={i} className="space-y-2">
                     <Label className="text-sm leading-relaxed">
                       <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-semibold mr-2">
@@ -401,13 +406,56 @@ const Index = () => {
                       </span>
                       {q}
                     </Label>
+                    {chips.length > 0 && (
+                      <div className="flex flex-wrap gap-2 animate-scale-fade-in">
+                        {chips.map((chip) => {
+                          const isSelected = selected.includes(chip);
+                          return (
+                            <button
+                              key={chip}
+                              type="button"
+                              onClick={() => {
+                                const next = isSelected
+                                  ? selected.filter((c) => c !== chip)
+                                  : [...selected, chip];
+                                setSelectedChips((prev) => ({ ...prev, [i]: next }));
+                                // Build combined answer: chips + free text
+                                const freeText = answers[i]
+                                  ?.split('\n')
+                                  .filter((line) => !line.startsWith('✦'))
+                                  .join('\n')
+                                  .trim() || '';
+                                const chipPrefix = next.length > 0 ? '✦ ' + next.join(' · ') : '';
+                                const combined = [chipPrefix, freeText].filter(Boolean).join('\n');
+                                updateAnswer(i, combined);
+                              }}
+                              className={`rounded-full px-3 py-1.5 text-xs font-medium border transition-all duration-200 ${
+                                isSelected
+                                  ? 'bg-primary/10 border-primary text-primary'
+                                  : 'bg-background/50 border-border/50 text-muted-foreground hover:border-primary/30 hover:text-foreground'
+                              }`}
+                            >
+                              {chip}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
                     <Textarea
                       ref={(el) => { textareaRefs.current[i] = el; }}
-                      value={answers[i]}
+                      value={
+                        // Show only free-text portion in textarea
+                        answers[i]
+                          ?.split('\n')
+                          .filter((line) => !line.startsWith('✦'))
+                          .join('\n') || ''
+                      }
                       onChange={(e) => {
-                        updateAnswer(i, e.target.value);
+                        const freeText = e.target.value;
+                        const chipPrefix = selected.length > 0 ? '✦ ' + selected.join(' · ') : '';
+                        const combined = [chipPrefix, freeText].filter(Boolean).join('\n');
+                        updateAnswer(i, combined);
                         autoResize(e.target);
-                        // Clear warning for this field on edit
                         if (qualityWarnings[i]) {
                           setQualityWarnings((prev) => {
                             const next = { ...prev };
@@ -416,7 +464,7 @@ const Index = () => {
                           });
                         }
                       }}
-                      placeholder="Escreva sua resposta aqui..."
+                      placeholder={chips.length > 0 ? 'Selecione opções acima e/ou escreva com suas palavras...' : 'Escreva sua resposta aqui...'}
                       className={`rounded-xl min-h-[100px] resize-none premium-input auto-resize transition-all duration-300 ${
                         qualityWarnings[i] ? 'border-amber-400/60 ring-1 ring-amber-400/30' : ''
                       }`}
@@ -450,7 +498,8 @@ const Index = () => {
                       </div>
                     )}
                   </div>
-                ))}
+                  );
+                })}
               </div>
               {renderErrors()}
               {renderNav(true)}
