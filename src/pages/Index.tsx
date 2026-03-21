@@ -62,6 +62,8 @@ const Index = () => {
   const [impactQuality, setImpactQuality] = useState<QualityAnalysis | null>(null);
   const [impactComplementary, setImpactComplementary] = useState('');
   const [selectedChips, setSelectedChips] = useState<Record<number, string[]>>({});
+  const [otherOpen, setOtherOpen] = useState<Record<number, boolean>>({});
+  const [otherText, setOtherText] = useState<Record<number, string>>({});
 
   // Auto-resize textarea refs
   const textareaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
@@ -407,38 +409,77 @@ const Index = () => {
                       {q}
                     </Label>
                     {chips.length > 0 && (
-                      <div className="flex flex-wrap gap-2 animate-scale-fade-in">
-                        {chips.map((chip) => {
-                          const isSelected = selected.includes(chip);
-                          return (
-                            <button
-                              key={chip}
-                              type="button"
-                              onClick={() => {
-                                const next = isSelected
-                                  ? selected.filter((c) => c !== chip)
-                                  : [...selected, chip];
-                                setSelectedChips((prev) => ({ ...prev, [i]: next }));
-                                // Build combined answer: chips + free text
+                      <div className="space-y-2">
+                        <div className="flex flex-wrap gap-2 animate-scale-fade-in">
+                          {chips.map((chip) => {
+                            const isSelected = selected.includes(chip);
+                            return (
+                              <button
+                                key={chip}
+                                type="button"
+                                onClick={() => {
+                                  const next = isSelected
+                                    ? selected.filter((c) => c !== chip)
+                                    : [...selected, chip];
+                                  setSelectedChips((prev) => ({ ...prev, [i]: next }));
+                                  const freeText = answers[i]
+                                    ?.split('\n')
+                                    .filter((line) => !line.startsWith('✦'))
+                                    .join('\n')
+                                    .trim() || '';
+                                  const otherVal = otherText[i]?.trim();
+                                  const allChips = otherVal ? [...next, `Outro: ${otherVal}`] : next;
+                                  const chipPrefix = allChips.length > 0 ? '✦ ' + allChips.join(' · ') : '';
+                                  const combined = [chipPrefix, freeText].filter(Boolean).join('\n');
+                                  updateAnswer(i, combined);
+                                }}
+                                className={`rounded-full px-3 py-1.5 text-xs font-medium border transition-all duration-200 ${
+                                  isSelected
+                                    ? 'bg-primary/10 border-primary text-primary'
+                                    : 'bg-background/50 border-border/50 text-muted-foreground hover:border-primary/30 hover:text-foreground'
+                                }`}
+                              >
+                                {chip}
+                              </button>
+                            );
+                          })}
+                          {/* Outro... chip */}
+                          <button
+                            type="button"
+                            onClick={() => setOtherOpen((prev) => ({ ...prev, [i]: !prev[i] }))}
+                            className={`rounded-full px-3 py-1.5 text-xs font-medium border border-dashed transition-all duration-200 ${
+                              otherOpen[i]
+                                ? 'bg-primary/10 border-primary text-primary'
+                                : 'bg-background/50 border-border text-muted-foreground hover:border-primary/30 hover:text-foreground'
+                            }`}
+                          >
+                            Outro...
+                          </button>
+                        </div>
+                        {otherOpen[i] && (
+                          <div className="animate-scale-fade-in">
+                            <Textarea
+                              value={otherText[i] || ''}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                setOtherText((prev) => ({ ...prev, [i]: val }));
                                 const freeText = answers[i]
                                   ?.split('\n')
                                   .filter((line) => !line.startsWith('✦'))
                                   .join('\n')
                                   .trim() || '';
-                                const chipPrefix = next.length > 0 ? '✦ ' + next.join(' · ') : '';
+                                const otherVal = val.trim();
+                                const allChips = otherVal ? [...selected, `Outro: ${otherVal}`] : selected;
+                                const chipPrefix = allChips.length > 0 ? '✦ ' + allChips.join(' · ') : '';
                                 const combined = [chipPrefix, freeText].filter(Boolean).join('\n');
                                 updateAnswer(i, combined);
                               }}
-                              className={`rounded-full px-3 py-1.5 text-xs font-medium border transition-all duration-200 ${
-                                isSelected
-                                  ? 'bg-primary/10 border-primary text-primary'
-                                  : 'bg-background/50 border-border/50 text-muted-foreground hover:border-primary/30 hover:text-foreground'
-                              }`}
-                            >
-                              {chip}
-                            </button>
-                          );
-                        })}
+                              placeholder="Escreva sua opção..."
+                              className="rounded-xl min-h-[60px] resize-none premium-input text-sm"
+                              maxLength={300}
+                            />
+                          </div>
+                        )}
                       </div>
                     )}
                     <Textarea
@@ -452,7 +493,9 @@ const Index = () => {
                       }
                       onChange={(e) => {
                         const freeText = e.target.value;
-                        const chipPrefix = selected.length > 0 ? '✦ ' + selected.join(' · ') : '';
+                        const otherVal = otherText[i]?.trim();
+                        const allChips = otherVal ? [...selected, `Outro: ${otherVal}`] : selected;
+                        const chipPrefix = allChips.length > 0 ? '✦ ' + allChips.join(' · ') : '';
                         const combined = [chipPrefix, freeText].filter(Boolean).join('\n');
                         updateAnswer(i, combined);
                         autoResize(e.target);
