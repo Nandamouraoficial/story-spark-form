@@ -773,6 +773,14 @@ const ConfirmationScreen = () => {
           </div>
         </div>
       </div>
+
+      {/* Link discreto para admin */}
+      <a
+        href="/admin"
+        className="fixed bottom-4 right-4 text-[10px] text-muted-foreground/30 hover:text-muted-foreground/60 transition-colors z-10"
+      >
+        admin
+      </a>
     </div>
   );
 };
