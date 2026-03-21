@@ -96,9 +96,40 @@ const Index = () => {
     }
     if (step === 3) {
       if (answers.some((a) => !a.trim())) errs.push('Responda todas as perguntas');
+      else {
+        const warnings: Record<number, QualityAnalysis> = {};
+        let hasGeneric = false;
+        answers.forEach((a, i) => {
+          const analysis = analyzeResponseQuality(a);
+          if (analysis.isGeneric) {
+            // If complementary answer is filled and substantial, allow pass
+            const comp = complementaryAnswers[i]?.trim() || '';
+            if (comp.length < 20) {
+              warnings[i] = analysis;
+              hasGeneric = true;
+            }
+          }
+        });
+        setQualityWarnings(warnings);
+        if (hasGeneric) errs.push('Algumas respostas precisam de mais detalhes');
+      }
     }
     if (step === 4) {
       if (!impactPhrase.trim()) errs.push('Preencha a frase de impacto');
+      else {
+        const analysis = analyzeResponseQuality(impactPhrase);
+        if (analysis.isGeneric) {
+          const comp = impactComplementary.trim();
+          if (comp.length < 20) {
+            setImpactQuality(analysis);
+            errs.push('A frase de impacto precisa de mais detalhes');
+          } else {
+            setImpactQuality(null);
+          }
+        } else {
+          setImpactQuality(null);
+        }
+      }
       if (wouldRecommend === null) errs.push('Indique se recomendaria');
     }
     if (step === 5) {
