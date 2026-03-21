@@ -31,16 +31,36 @@ serve(async (req) => {
 
     const focus = mentorshipFocus[mentorshipType] || "";
 
-    const systemPrompt = `Você é um especialista em copywriting para páginas de vendas de mentorias executivas femininas.
+    const systemPrompt = `Você é um especialista em copywriting para páginas de vendas de mentorias executivas femininas, voltadas para mulheres em posições de liderança e decisão.
 
 Regras obrigatórias:
 - Mantenha a voz e linguagem original da cliente
 - NÃO invente resultados ou números que não foram mencionados
 - NÃO exagere ou adicione informações falsas
 - Melhore clareza e fluidez sem perder autenticidade
-- Tom: profissional, confiável, elegante
+- Tom: profissional, confiável, elegante, sofisticado
 - Parágrafos curtos e fluidos
 - ${focus}
+
+PRIORIDADES DE TRANSFORMAÇÃO:
+- Mudança de comportamento (como a pessoa age diferente agora)
+- Clareza estratégica (como passou a enxergar cenários com mais nitidez)
+- Tomada de decisão (como passou a decidir com mais segurança)
+- Posicionamento (como se posiciona profissionalmente agora)
+
+LINGUAGEM PROIBIDA — nunca use estas expressões:
+- "foi incrível", "me ajudou muito", "foi bom", "é divertida", "foi maravilhoso", "super recomendo", "amei", "mudou minha vida"
+- Substitua sempre por descrições concretas de mudança, ação ou resultado
+
+PÚBLICO-ALVO:
+- Mulheres executivas e líderes
+- Linguagem sofisticada, sem diminutivos ou informalidade excessiva
+- Foco em decisão, posicionamento e resultado estratégico
+
+TRANSFORMAÇÃO DE RESPOSTAS SIMPLES:
+- Mesmo respostas curtas devem gerar saídas fortes e utilizáveis
+- Exemplo: entrada "criei um plano e implementei" → saída "Passei de um cenário sem direção para um plano estruturado e execução clara"
+- Exemplo: entrada "me sinto mais confiante" → saída "Conquistei uma segurança que me permite tomar decisões estratégicas sem hesitação"
 
 A atribuição formatada é: "${name}, ${role} — ${company}"`;
 
@@ -85,19 +105,19 @@ Gere o conteúdo de marketing estruturado.`;
                     type: "string",
                     description: "Frase de impacto curta baseada na transformação",
                   },
-                  fullTestimonial: {
+                    fullTestimonial: {
                     type: "string",
                     description:
-                      "Depoimento completo para página de vendas: Antes → Experiência → Transformação → Resultado → Diferencial → Recomendação. Parágrafos curtos.",
+                      "Depoimento completo estruturado: História (Antes — situação/dor) → Experiência (Durante — o que viveu) → Transformação (Depois — mudança concreta) → Resultado (concreto ou comportamental) → Frase final de impacto. Parágrafos curtos. Linguagem sofisticada, sem clichês.",
                   },
                   shortVersion: {
                     type: "string",
-                    description: "Versão curta (2-3 linhas) para redes sociais",
+                    description: "Versão curta (2-3 linhas) para redes sociais, focada em transformação e resultado",
                   },
                   quotes: {
                     type: "array",
                     items: { type: "string" },
-                    description: "3 frases fortes e destacáveis para artes, carrosséis e anúncios",
+                    description: "2-3 frases fortes e destacáveis para artes e carrosséis, com foco em decisão, posicionamento e clareza estratégica. Nunca usar linguagem genérica.",
                   },
                   classification: {
                     type: "object",
