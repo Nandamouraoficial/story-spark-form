@@ -163,9 +163,9 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8 sm:py-16 relative overflow-hidden">
       {/* Animated background blobs */}
-      <div className="bg-blob w-[500px] h-[500px] bg-primary/20 top-[-200px] left-[-100px] animate-blob-move" />
-      <div className="bg-blob w-[400px] h-[400px] bg-primary/10 bottom-[-150px] right-[-100px] animate-blob-move" style={{ animationDelay: '-7s' }} />
-      <div className="bg-blob w-[300px] h-[300px] bg-primary/15 top-[40%] right-[10%] animate-blob-move" style={{ animationDelay: '-14s' }} />
+      <div className="bg-blob w-[60vw] max-w-[500px] h-[60vw] max-h-[500px] bg-primary/20 top-[-200px] left-[-100px] animate-blob-move" />
+      <div className="bg-blob w-[50vw] max-w-[400px] h-[50vw] max-h-[400px] bg-primary/10 bottom-[-150px] right-[-100px] animate-blob-move" style={{ animationDelay: '-7s' }} />
+      <div className="bg-blob w-[40vw] max-w-[300px] h-[40vw] max-h-[300px] bg-primary/15 top-[40%] right-[10%] animate-blob-move" style={{ animationDelay: '-14s' }} />
 
       <div className="w-full max-w-xl relative z-10">
         {/* Progress Dots */}
@@ -227,7 +227,7 @@ const Index = () => {
               </div>
 
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold text-foreground leading-tight tracking-tight font-display mb-5">
-                Sua experiência pode<br />
+                Sua experiência pode {' '}
                 <span className="text-primary">transformar</span> outras carreiras
               </h1>
 
@@ -524,7 +524,7 @@ const Index = () => {
                 {/* Photo Upload with Preview */}
                 <div className="space-y-3">
                   <Label>Foto (opcional, máx. 2MB)</Label>
-                  <div className="flex items-center gap-5">
+                  <div className="flex flex-col sm:flex-row items-center gap-5">
                     {photo && (
                       <div className="animate-scale-fade-in">
                         <img

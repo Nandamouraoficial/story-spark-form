@@ -140,7 +140,7 @@ const Admin = () => {
 
         {/* Stats */}
         {stats && (
-          <div className="grid grid-cols-3 gap-3 sm:gap-4 opacity-0 animate-fade-up-delay-1">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 opacity-0 animate-fade-up-delay-1">
             <div className="glass-card rounded-xl p-4 sm:p-5 text-center">
               <Users className="h-5 w-5 text-primary mx-auto mb-2" />
               <p className="text-2xl sm:text-3xl font-semibold text-foreground">{stats.total}</p>
@@ -176,7 +176,7 @@ const Admin = () => {
               >
                 {/* Card header */}
                 <div className="p-5 sm:p-6 pb-0">
-                  <div className="flex items-start justify-between gap-3">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                     <div className="flex items-center gap-3">
                       {t.photo ? (
                         <img
@@ -196,7 +196,7 @@ const Admin = () => {
                         <p className="text-sm text-muted-foreground">{t.role} · {t.company}</p>
                       </div>
                     </div>
-                    <div className="flex flex-col items-end gap-2 shrink-0">
+                    <div className="flex flex-row sm:flex-col items-center sm:items-end gap-2 shrink-0">
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-medium">
                         <span>{mentorshipIcons[t.mentorshipType]}</span>
                         {mentorshipLabels[t.mentorshipType].split('/')[0].split('(')[0].trim()}
@@ -208,10 +208,10 @@ const Admin = () => {
 
                 {/* Quote highlight */}
                 {t.quote && (
-                  <div className="px-5 sm:px-6 pt-5">
-                    <div className="relative bg-primary/[0.04] rounded-xl p-5 border-l-[3px] border-primary/40">
-                      <span className="absolute -top-2 left-3 text-5xl text-primary/20 font-display leading-none select-none">"</span>
-                      <p className="font-display italic text-foreground text-base sm:text-lg leading-relaxed pl-4">
+                  <div className="px-4 sm:px-6 pt-5">
+                    <div className="relative bg-primary/[0.04] rounded-xl p-4 sm:p-5 border-l-[3px] border-primary/40">
+                      <span className="absolute -top-2 left-2 sm:left-3 text-4xl sm:text-5xl text-primary/20 font-display leading-none select-none">"</span>
+                      <p className="font-display italic text-foreground text-sm sm:text-lg leading-relaxed pl-3 sm:pl-4">
                         {t.quote}
                       </p>
                     </div>
@@ -260,7 +260,7 @@ const Admin = () => {
                 )}
 
                 {/* Footer */}
-                <div className="px-5 sm:px-6 py-4 mt-2 flex items-center justify-between border-t border-border/30">
+                <div className="px-4 sm:px-6 py-4 mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-border/30">
                   <p className="text-xs text-muted-foreground">
                     {new Date(t.timestamp).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
                   </p>
