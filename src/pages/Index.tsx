@@ -18,9 +18,9 @@ import { ArrowRight, ArrowLeft, Send, Upload, Check, Sparkles, Rocket, Target, L
 const TOTAL_STEPS = 7;
 
 const mentorshipIcons: Record<MentorshipType, React.ReactNode> = {
-  entrepreneurship: <Rocket className="h-5 w-5" />,
-  growth: <Target className="h-5 w-5" />,
-  turning_point: <Lightbulb className="h-5 w-5" />,
+  empreendedorismo: <Rocket className="h-5 w-5" />,
+  crescimento: <Target className="h-5 w-5" />,
+  virada: <Lightbulb className="h-5 w-5" />,
   linkedin: <Linkedin className="h-5 w-5" />,
 };
 
