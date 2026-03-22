@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { analyzeResponseQuality, getExampleForQuestion, QualityLevel } from '@/lib/response-validation';
 import { Input } from '@/components/ui/input';
