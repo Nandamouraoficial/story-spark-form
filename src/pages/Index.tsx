@@ -525,7 +525,16 @@ const Index = () => {
             }
             const i = currentQuestion;
             const q = questions[i];
-            if (!q) return null;
+            if (!q) {
+              return (
+                <div className="glass-card rounded-2xl shadow-xl px-6 py-10 max-w-lg mx-auto text-center">
+                  <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                    <Sparkles className="h-5 w-5 animate-pulse" />
+                    <span className="text-sm">Preparando próxima etapa...</span>
+                  </div>
+                </div>
+              );
+            }
             const selected = selectedChips[i] || [];
 
             return (
