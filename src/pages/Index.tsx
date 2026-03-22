@@ -82,7 +82,7 @@ const Index = () => {
     if (step === 3 && mentorshipType) {
       const questions = conditionalQuestions[mentorshipType as MentorshipType] || [];
       if (currentQuestion >= questions.length && questions.length > 0) {
-        console.warn('RECOVERY: question index out of bounds', { currentQuestion, total: questions.length });
+        
         setCurrentQuestion(0);
         setStep(4);
         setStepKey((k) => k + 1);
