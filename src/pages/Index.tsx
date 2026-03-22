@@ -67,8 +67,6 @@ const Index = () => {
   // Non-blocking quality suggestions
   const [weakWarning, setWeakWarning] = useState<Record<number, boolean>>({});
   const [weakDismissed, setWeakDismissed] = useState<Record<number, boolean>>({});
-  const [impactWeakWarning, setImpactWeakWarning] = useState(false);
-  const [impactWeakDismissed, setImpactWeakDismissed] = useState(false);
 
   const textareaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
 
@@ -148,14 +146,6 @@ const Index = () => {
     }
     if (step === 4) {
       if (!impactPhrase.trim()) errs.push('Preencha a frase de impacto');
-      else {
-        const analysis = analyzeResponseQuality(impactPhrase);
-        if (analysis.level === 'weak' && !impactWeakDismissed) {
-          setImpactWeakWarning(true);
-        } else {
-          setImpactWeakWarning(false);
-        }
-      }
       if (wouldRecommend === null) errs.push('Indique se recomendaria');
     }
     if (step === 5) {
@@ -639,36 +629,11 @@ const Index = () => {
                   </Label>
                   <Input
                     value={impactPhrase}
-                    onChange={(e) => {
-                      setImpactPhrase(e.target.value);
-                      if (impactWeakWarning) {
-                        setImpactWeakWarning(false);
-                        setImpactWeakDismissed(false);
-                      }
-                    }}
+                    onChange={(e) => setImpactPhrase(e.target.value)}
                     placeholder="Ex: Descobri que era possível recomeçar com segurança"
                     maxLength={200}
                     className="rounded-xl h-12 premium-input"
                   />
-                  {impactWeakWarning && !impactWeakDismissed && (
-                    <div className="animate-scale-fade-in">
-                      <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-800/30">
-                        <AlertCircle className="h-4 w-4 text-amber-500 flex-shrink-0" />
-                        <p className="text-xs text-amber-700 dark:text-amber-400 flex-1">
-                          Se quiser, complemente com um exemplo curto
-                        </p>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setImpactWeakDismissed(true)}
-                          className="text-xs h-7 px-2 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/30"
-                        >
-                          Continuar assim mesmo
-                        </Button>
-                      </div>
-                    </div>
-                  )}
                 </div>
                 <div className="space-y-2">
                   <Label>
