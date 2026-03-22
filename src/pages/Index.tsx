@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { analyzeResponseQuality, getExampleForQuestion, getComplementaryPrompt, QualityAnalysis } from '@/lib/response-validation';
+import { analyzeResponseQuality, getExampleForQuestion, QualityLevel } from '@/lib/response-validation';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -43,8 +43,9 @@ const Index = () => {
   // Step 3 - Segmentation
   const [mentorshipType, setMentorshipType] = useState<MentorshipType | ''>('');
 
-  // Step 4 - Conditional answers
+  // Step 4 - Conditional answers (one question at a time)
   const [answers, setAnswers] = useState<string[]>(['', '', '', '']);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
 
   // Step 5 - Complementary
   const [impactPhrase, setImpactPhrase] = useState('');
@@ -57,15 +58,16 @@ const Index = () => {
   const [photo, setPhoto] = useState<string | undefined>(undefined);
 
   const [errors, setErrors] = useState<string[]>([]);
-  const [qualityWarnings, setQualityWarnings] = useState<Record<number, QualityAnalysis>>({});
-  const [complementaryAnswers, setComplementaryAnswers] = useState<Record<number, string>>({});
-  const [impactQuality, setImpactQuality] = useState<QualityAnalysis | null>(null);
-  const [impactComplementary, setImpactComplementary] = useState('');
   const [selectedChips, setSelectedChips] = useState<Record<number, string[]>>({});
   const [otherOpen, setOtherOpen] = useState<Record<number, boolean>>({});
   const [otherText, setOtherText] = useState<Record<number, string>>({});
 
-  // Auto-resize textarea refs
+  // Non-blocking quality suggestions
+  const [weakWarning, setWeakWarning] = useState<Record<number, boolean>>({});
+  const [weakDismissed, setWeakDismissed] = useState<Record<number, boolean>>({});
+  const [impactWeakWarning, setImpactWeakWarning] = useState(false);
+  const [impactWeakDismissed, setImpactWeakDismissed] = useState(false);
+
   const textareaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
 
   useEffect(() => {
@@ -87,6 +89,19 @@ const Index = () => {
     });
   }, []);
 
+  const buildCombinedAnswer = (index: number, freeText: string, chips: string[], otherVal: string) => {
+    const allChips = otherVal ? [...chips, `Outro: ${otherVal}`] : chips;
+    const chipPrefix = allChips.length > 0 ? '✦ ' + allChips.join(' · ') : '';
+    return [chipPrefix, freeText].filter(Boolean).join('\n');
+  };
+
+  const getFreeText = (answer: string) => {
+    return answer
+      ?.split('\n')
+      .filter((line) => !line.startsWith('✦'))
+      .join('\n') || '';
+  };
+
   const validate = (): boolean => {
     const errs: string[] = [];
     if (step === 1) {
@@ -99,39 +114,29 @@ const Index = () => {
       if (!mentorshipType) errs.push('Selecione o tipo de mentoria');
     }
     if (step === 3) {
-      if (answers.some((a) => !a.trim())) errs.push('Responda todas as perguntas');
-      else {
-        const warnings: Record<number, QualityAnalysis> = {};
-        let hasGeneric = false;
-        answers.forEach((a, i) => {
-          const analysis = analyzeResponseQuality(a);
-          if (analysis.isGeneric) {
-            // If complementary answer is filled and substantial, allow pass
-            const comp = complementaryAnswers[i]?.trim() || '';
-            if (comp.length < 20) {
-              warnings[i] = analysis;
-              hasGeneric = true;
-            }
-          }
-        });
-        setQualityWarnings(warnings);
-        if (hasGeneric) errs.push('Algumas respostas precisam de mais detalhes');
+      const answer = answers[currentQuestion];
+      if (!answer.trim()) {
+        errs.push('Responda a pergunta antes de continuar');
+      } else {
+        // Non-blocking quality check
+        const hasChips = (selectedChips[currentQuestion] || []).length > 0;
+        const analysis = analyzeResponseQuality(answer, hasChips);
+        if (analysis.level === 'weak' && !weakDismissed[currentQuestion]) {
+          setWeakWarning((prev) => ({ ...prev, [currentQuestion]: true }));
+          // Don't block — just show warning
+        } else {
+          setWeakWarning((prev) => ({ ...prev, [currentQuestion]: false }));
+        }
       }
     }
     if (step === 4) {
       if (!impactPhrase.trim()) errs.push('Preencha a frase de impacto');
       else {
         const analysis = analyzeResponseQuality(impactPhrase);
-        if (analysis.isGeneric) {
-          const comp = impactComplementary.trim();
-          if (comp.length < 20) {
-            setImpactQuality(analysis);
-            errs.push('A frase de impacto precisa de mais detalhes');
-          } else {
-            setImpactQuality(null);
-          }
+        if (analysis.level === 'weak' && !impactWeakDismissed) {
+          setImpactWeakWarning(true);
         } else {
-          setImpactQuality(null);
+          setImpactWeakWarning(false);
         }
       }
       if (wouldRecommend === null) errs.push('Indique se recomendaria');
@@ -158,6 +163,16 @@ const Index = () => {
 
   const handleNext = () => {
     if (!validate()) return;
+    if (step === 3) {
+      // One question at a time
+      if (currentQuestion < 3) {
+        setCurrentQuestion(currentQuestion + 1);
+        setStepKey((k) => k + 1);
+        setStaggerReady(false);
+        setErrors([]);
+        return;
+      }
+    }
     if (step === 5) {
       // Submit
       const type = mentorshipType as MentorshipType;
@@ -185,7 +200,19 @@ const Index = () => {
     navigateStep(step + 1, 'forward');
   };
 
-  const handleBack = () => navigateStep(step - 1, 'back');
+  const handleBack = () => {
+    if (step === 3 && currentQuestion > 0) {
+      setCurrentQuestion(currentQuestion - 1);
+      setStepKey((k) => k + 1);
+      setStaggerReady(false);
+      setErrors([]);
+      return;
+    }
+    if (step === 3 && currentQuestion === 0) {
+      setCurrentQuestion(0);
+    }
+    navigateStep(step - 1, 'back');
+  };
 
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -200,6 +227,73 @@ const Index = () => {
   };
 
   const stepLabels = ['Início', 'Identificação', 'Mentoria', 'Experiência', 'Detalhes', 'Autorização', 'Enviado'];
+
+  const renderQuestionChips = (i: number) => {
+    if (!mentorshipType) return null;
+    const chips = getChipsForQuestion(mentorshipType as MentorshipType, i);
+    const selected = selectedChips[i] || [];
+    if (chips.length === 0) return null;
+
+    return (
+      <div className="space-y-2">
+        <div className="flex flex-wrap gap-2 animate-scale-fade-in">
+          {chips.map((chip) => {
+            const isSelected = selected.includes(chip);
+            return (
+              <button
+                key={chip}
+                type="button"
+                onClick={() => {
+                  const next = isSelected
+                    ? selected.filter((c) => c !== chip)
+                    : [...selected, chip];
+                  setSelectedChips((prev) => ({ ...prev, [i]: next }));
+                  const freeText = getFreeText(answers[i]);
+                  const otherVal = otherText[i]?.trim() || '';
+                  updateAnswer(i, buildCombinedAnswer(i, freeText, next, otherVal));
+                }}
+                className={`rounded-full px-3 py-1.5 text-xs font-medium border transition-all duration-200 ${
+                  isSelected
+                    ? 'bg-primary/10 border-primary text-primary'
+                    : 'bg-background/50 border-border/50 text-muted-foreground hover:border-primary/30 hover:text-foreground'
+                }`}
+              >
+                {chip}
+              </button>
+            );
+          })}
+          {/* Outro... chip */}
+          <button
+            type="button"
+            onClick={() => setOtherOpen((prev) => ({ ...prev, [i]: !prev[i] }))}
+            className={`rounded-full px-3 py-1.5 text-xs font-medium border border-dashed transition-all duration-200 ${
+              otherOpen[i]
+                ? 'bg-primary/10 border-primary text-primary'
+                : 'bg-background/50 border-border text-muted-foreground hover:border-primary/30 hover:text-foreground'
+            }`}
+          >
+            Outro...
+          </button>
+        </div>
+        {otherOpen[i] && (
+          <div className="animate-scale-fade-in">
+            <Textarea
+              value={otherText[i] || ''}
+              onChange={(e) => {
+                const val = e.target.value;
+                setOtherText((prev) => ({ ...prev, [i]: val }));
+                const freeText = getFreeText(answers[i]);
+                updateAnswer(i, buildCombinedAnswer(i, freeText, selected, val.trim()));
+              }}
+              placeholder="Escreva sua opção..."
+              className="rounded-xl min-h-[60px] resize-none premium-input text-sm"
+              maxLength={300}
+            />
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-8 sm:py-16 relative overflow-hidden">
@@ -236,6 +330,7 @@ const Index = () => {
             </div>
             <p className="text-center mt-3 text-xs text-muted-foreground font-medium tracking-wide uppercase">
               {stepLabels[step]}
+              {step === 3 && ` — ${currentQuestion + 1}/4`}
             </p>
           </div>
         )}
@@ -254,7 +349,6 @@ const Index = () => {
           {/* Step 0 - Welcome */}
           {step === 0 && (
             <div className={`text-center stagger-children ${staggerReady ? 'animate' : ''}`}>
-              {/* Glow behind title */}
               <div className="relative mb-8">
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                   <div className="w-64 h-64 rounded-full bg-primary/10 blur-3xl animate-glow-pulse" />
@@ -385,169 +479,90 @@ const Index = () => {
             </div>
           )}
 
-          {/* Step 3 - Conditional Questions */}
-          {step === 3 && mentorshipType && (
-            <div className={`glass-card rounded-2xl p-6 sm:p-8 stagger-children ${staggerReady ? 'animate' : ''}`}>
-              <div className="mb-6">
-                <h2 className="text-2xl sm:text-3xl font-semibold text-foreground font-display">
-                  Sua experiência
-                </h2>
-                <p className="text-muted-foreground mt-1 text-sm">
-                  Conte com suas palavras — sem pressa
-                </p>
-              </div>
-              <div className="space-y-6">
-                {conditionalQuestions[mentorshipType as MentorshipType].map((q, i) => {
-                  const chips = getChipsForQuestion(mentorshipType as MentorshipType, i);
-                  const selected = selectedChips[i] || [];
-                  return (
-                  <div key={i} className="space-y-2">
-                    <Label className="text-sm leading-relaxed">
-                      <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-semibold mr-2">
-                        {i + 1}
-                      </span>
-                      {q}
-                    </Label>
-                    {chips.length > 0 && (
-                      <div className="space-y-2">
-                        <div className="flex flex-wrap gap-2 animate-scale-fade-in">
-                          {chips.map((chip) => {
-                            const isSelected = selected.includes(chip);
-                            return (
-                              <button
-                                key={chip}
-                                type="button"
-                                onClick={() => {
-                                  const next = isSelected
-                                    ? selected.filter((c) => c !== chip)
-                                    : [...selected, chip];
-                                  setSelectedChips((prev) => ({ ...prev, [i]: next }));
-                                  const freeText = answers[i]
-                                    ?.split('\n')
-                                    .filter((line) => !line.startsWith('✦'))
-                                    .join('\n')
-                                    .trim() || '';
-                                  const otherVal = otherText[i]?.trim();
-                                  const allChips = otherVal ? [...next, `Outro: ${otherVal}`] : next;
-                                  const chipPrefix = allChips.length > 0 ? '✦ ' + allChips.join(' · ') : '';
-                                  const combined = [chipPrefix, freeText].filter(Boolean).join('\n');
-                                  updateAnswer(i, combined);
-                                }}
-                                className={`rounded-full px-3 py-1.5 text-xs font-medium border transition-all duration-200 ${
-                                  isSelected
-                                    ? 'bg-primary/10 border-primary text-primary'
-                                    : 'bg-background/50 border-border/50 text-muted-foreground hover:border-primary/30 hover:text-foreground'
-                                }`}
-                              >
-                                {chip}
-                              </button>
-                            );
-                          })}
-                          {/* Outro... chip */}
-                          <button
-                            type="button"
-                            onClick={() => setOtherOpen((prev) => ({ ...prev, [i]: !prev[i] }))}
-                            className={`rounded-full px-3 py-1.5 text-xs font-medium border border-dashed transition-all duration-200 ${
-                              otherOpen[i]
-                                ? 'bg-primary/10 border-primary text-primary'
-                                : 'bg-background/50 border-border text-muted-foreground hover:border-primary/30 hover:text-foreground'
-                            }`}
-                          >
-                            Outro...
-                          </button>
-                        </div>
-                        {otherOpen[i] && (
-                          <div className="animate-scale-fade-in">
-                            <Textarea
-                              value={otherText[i] || ''}
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                setOtherText((prev) => ({ ...prev, [i]: val }));
-                                const freeText = answers[i]
-                                  ?.split('\n')
-                                  .filter((line) => !line.startsWith('✦'))
-                                  .join('\n')
-                                  .trim() || '';
-                                const otherVal = val.trim();
-                                const allChips = otherVal ? [...selected, `Outro: ${otherVal}`] : selected;
-                                const chipPrefix = allChips.length > 0 ? '✦ ' + allChips.join(' · ') : '';
-                                const combined = [chipPrefix, freeText].filter(Boolean).join('\n');
-                                updateAnswer(i, combined);
-                              }}
-                              placeholder="Escreva sua opção..."
-                              className="rounded-xl min-h-[60px] resize-none premium-input text-sm"
-                              maxLength={300}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    <Textarea
-                      ref={(el) => { textareaRefs.current[i] = el; }}
-                      value={
-                        // Show only free-text portion in textarea
-                        answers[i]
-                          ?.split('\n')
-                          .filter((line) => !line.startsWith('✦'))
-                          .join('\n') || ''
+          {/* Step 3 - One Question at a Time */}
+          {step === 3 && mentorshipType && (() => {
+            const questions = conditionalQuestions[mentorshipType as MentorshipType];
+            const i = currentQuestion;
+            const q = questions[i];
+            const selected = selectedChips[i] || [];
+
+            return (
+              <div className={`glass-card rounded-2xl p-6 sm:p-8 stagger-children ${staggerReady ? 'animate' : ''}`}>
+                <div className="mb-6">
+                  <h2 className="text-2xl sm:text-3xl font-semibold text-foreground font-display">
+                    Sua experiência
+                  </h2>
+                  <p className="text-muted-foreground mt-1 text-sm">
+                    Pergunta {i + 1} de 4 — conte com suas palavras
+                  </p>
+                </div>
+                <div className="space-y-4">
+                  <Label className="text-sm leading-relaxed">
+                    <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-semibold mr-2">
+                      {i + 1}
+                    </span>
+                    {q}
+                  </Label>
+                  {renderQuestionChips(i)}
+                  <Textarea
+                    ref={(el) => { textareaRefs.current[i] = el; }}
+                    value={getFreeText(answers[i])}
+                    onChange={(e) => {
+                      const freeText = e.target.value;
+                      const otherVal = otherText[i]?.trim() || '';
+                      updateAnswer(i, buildCombinedAnswer(i, freeText, selected, otherVal));
+                      autoResize(e.target);
+                      if (weakWarning[i]) {
+                        setWeakWarning((prev) => ({ ...prev, [i]: false }));
+                        setWeakDismissed((prev) => ({ ...prev, [i]: false }));
                       }
-                      onChange={(e) => {
-                        const freeText = e.target.value;
-                        const otherVal = otherText[i]?.trim();
-                        const allChips = otherVal ? [...selected, `Outro: ${otherVal}`] : selected;
-                        const chipPrefix = allChips.length > 0 ? '✦ ' + allChips.join(' · ') : '';
-                        const combined = [chipPrefix, freeText].filter(Boolean).join('\n');
-                        updateAnswer(i, combined);
-                        autoResize(e.target);
-                        if (qualityWarnings[i]) {
-                          setQualityWarnings((prev) => {
-                            const next = { ...prev };
-                            delete next[i];
-                            return next;
-                          });
-                        }
-                      }}
-                      placeholder={chips.length > 0 ? 'Selecione opções acima e/ou escreva com suas palavras...' : 'Escreva sua resposta aqui...'}
-                      className={`rounded-xl min-h-[100px] resize-none premium-input auto-resize transition-all duration-300 ${
-                        qualityWarnings[i] ? 'border-amber-400/60 ring-1 ring-amber-400/30' : ''
-                      }`}
-                      maxLength={1000}
-                    />
-                    {/* Quality warning inline */}
-                    {qualityWarnings[i] && (
-                      <div className="animate-scale-fade-in space-y-3">
-                        <div className="flex items-start gap-2 text-sm text-amber-600 dark:text-amber-400">
-                          <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                          <span>Pode detalhar melhor? Nos ajude com um exemplo real ou situação concreta.</span>
-                        </div>
-                        <div className="glass-card rounded-xl p-3 border border-primary/10">
-                          <p className="text-xs text-muted-foreground mb-1 font-medium">💡 Exemplo de resposta forte:</p>
-                          <p className="text-xs text-muted-foreground/80 italic leading-relaxed">
-                            "{getExampleForQuestion(mentorshipType as MentorshipType, i)}"
-                          </p>
-                        </div>
-                        <div className="space-y-1.5">
-                          <Label className="text-xs text-amber-600 dark:text-amber-400 font-medium">
-                            {getComplementaryPrompt()}
-                          </Label>
-                          <Textarea
-                            value={complementaryAnswers[i] || ''}
-                            onChange={(e) => setComplementaryAnswers((prev) => ({ ...prev, [i]: e.target.value }))}
-                            placeholder="Descreva uma situação concreta..."
-                            className="rounded-xl min-h-[70px] resize-none premium-input text-sm"
-                            maxLength={500}
-                          />
-                        </div>
+                    }}
+                    placeholder={getChipsForQuestion(mentorshipType as MentorshipType, i).length > 0
+                      ? 'Selecione opções acima e/ou escreva com suas palavras...'
+                      : 'Escreva sua resposta aqui...'}
+                    className="rounded-xl min-h-[100px] resize-none premium-input auto-resize transition-all duration-300"
+                    maxLength={1000}
+                  />
+                  {/* Non-blocking weak warning */}
+                  {weakWarning[i] && !weakDismissed[i] && (
+                    <div className="animate-scale-fade-in">
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-800/30">
+                        <AlertCircle className="h-4 w-4 text-amber-500 flex-shrink-0" />
+                        <p className="text-xs text-amber-700 dark:text-amber-400 flex-1">
+                          Se quiser, complemente com um exemplo curto
+                        </p>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setWeakDismissed((prev) => ({ ...prev, [i]: true }))}
+                          className="text-xs h-7 px-2 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/30"
+                        >
+                          Continuar assim mesmo
+                        </Button>
                       </div>
-                    )}
-                  </div>
-                  );
-                })}
+                    </div>
+                  )}
+                </div>
+                {renderErrors()}
+                <div className="flex gap-3 pt-6">
+                  <Button
+                    variant="outline"
+                    onClick={handleBack}
+                    className="rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+                  >
+                    <ArrowLeft className="mr-1 h-4 w-4" /> Voltar
+                  </Button>
+                  <Button
+                    onClick={handleNext}
+                    className="flex-1 rounded-xl py-6 text-base font-medium glow-shadow hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
+                  >
+                    {currentQuestion < 3 ? 'Próxima' : 'Continuar'} <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
               </div>
-              {renderErrors()}
-              {renderNav(true)}
-            </div>
-          )}
+            );
+          })()}
 
           {/* Step 4 - Complementary */}
           {step === 4 && (
@@ -569,37 +584,31 @@ const Index = () => {
                     value={impactPhrase}
                     onChange={(e) => {
                       setImpactPhrase(e.target.value);
-                      if (impactQuality) setImpactQuality(null);
+                      if (impactWeakWarning) {
+                        setImpactWeakWarning(false);
+                        setImpactWeakDismissed(false);
+                      }
                     }}
                     placeholder="Ex: Descobri que era possível recomeçar com segurança"
                     maxLength={200}
-                    className={`rounded-xl h-12 premium-input transition-all duration-300 ${
-                      impactQuality ? 'border-amber-400/60 ring-1 ring-amber-400/30' : ''
-                    }`}
+                    className="rounded-xl h-12 premium-input"
                   />
-                  {impactQuality && (
-                    <div className="animate-scale-fade-in space-y-3 mt-2">
-                      <div className="flex items-start gap-2 text-sm text-amber-600 dark:text-amber-400">
-                        <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                        <span>Pode detalhar melhor? Inclua um contexto ou resultado concreto.</span>
-                      </div>
-                      <div className="glass-card rounded-xl p-3 border border-primary/10">
-                        <p className="text-xs text-muted-foreground mb-1 font-medium">💡 Exemplo:</p>
-                        <p className="text-xs text-muted-foreground/80 italic leading-relaxed">
-                          "Descobri que era possível recomeçar com segurança — e hoje tenho uma empresa própria com 12 clientes."
+                  {impactWeakWarning && !impactWeakDismissed && (
+                    <div className="animate-scale-fade-in">
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200/50 dark:border-amber-800/30">
+                        <AlertCircle className="h-4 w-4 text-amber-500 flex-shrink-0" />
+                        <p className="text-xs text-amber-700 dark:text-amber-400 flex-1">
+                          Se quiser, complemente com um exemplo curto
                         </p>
-                      </div>
-                      <div className="space-y-1.5">
-                        <Label className="text-xs text-amber-600 dark:text-amber-400 font-medium">
-                          {getComplementaryPrompt()}
-                        </Label>
-                        <Textarea
-                          value={impactComplementary}
-                          onChange={(e) => setImpactComplementary(e.target.value)}
-                          placeholder="Descreva uma situação concreta..."
-                          className="rounded-xl min-h-[70px] resize-none premium-input text-sm"
-                          maxLength={500}
-                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setImpactWeakDismissed(true)}
+                          className="text-xs h-7 px-2 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/30"
+                        >
+                          Continuar assim mesmo
+                        </Button>
                       </div>
                     </div>
                   )}
@@ -617,7 +626,7 @@ const Index = () => {
                   />
                 </div>
 
-                {/* Experiential Satisfaction Slider */}
+                {/* Satisfaction Slider */}
                 <div className="space-y-4">
                   <Label>Nota de satisfação</Label>
                   <div className="text-center">
@@ -650,7 +659,7 @@ const Index = () => {
                   </div>
                 </div>
 
-                {/* Would Recommend - Delight Buttons */}
+                {/* Would Recommend */}
                 <div className="space-y-3">
                   <Label>Você indicaria essa mentoria?</Label>
                   <div className="flex gap-3">
@@ -718,7 +727,7 @@ const Index = () => {
                   </span>
                 </label>
 
-                {/* Photo Upload with Preview */}
+                {/* Photo Upload */}
                 <div className="space-y-3">
                   <Label>Foto (opcional, máx. 2MB)</Label>
                   <div className="flex flex-col sm:flex-row items-center gap-5">
@@ -810,7 +819,7 @@ const Index = () => {
   }
 };
 
-/* Confirmation screen with animated checkmark and sparkles */
+/* Confirmation screen */
 const ConfirmationScreen = () => {
   const [showContent, setShowContent] = useState(false);
 
@@ -821,7 +830,6 @@ const ConfirmationScreen = () => {
 
   return (
     <div className="text-center py-12 relative">
-      {/* Sparkle particles */}
       {[...Array(8)].map((_, i) => (
         <div
           key={i}
@@ -837,7 +845,6 @@ const ConfirmationScreen = () => {
         />
       ))}
 
-      {/* Animated checkmark */}
       <div className="mx-auto w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mb-8 animate-scale-fade-in glow-shadow">
         <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="text-primary">
           <path
@@ -866,7 +873,6 @@ const ConfirmationScreen = () => {
         </div>
       </div>
 
-      {/* Link discreto para admin */}
       <a
         href="/admin"
         className="fixed bottom-4 right-4 text-[10px] text-muted-foreground/40 hover:text-muted-foreground/70 transition-colors z-10"
