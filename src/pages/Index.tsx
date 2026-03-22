@@ -274,7 +274,7 @@ const Index = () => {
 
     return (
       <div className="space-y-2">
-        <div className="flex flex-wrap gap-2 animate-scale-fade-in">
+        <div className="flex flex-col gap-2 animate-scale-fade-in">
           {chips.map((chip) => {
             const isSelected = selected.includes(chip);
             return (
