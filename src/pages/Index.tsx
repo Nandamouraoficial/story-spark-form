@@ -264,8 +264,8 @@ const Index = () => {
 
     return (
       <div className="space-y-2">
-        <div className="flex flex-col gap-2 animate-scale-fade-in">
-          {chips.map((chip) => {
+        <div className="flex flex-wrap gap-2.5 animate-scale-fade-in">
+          {chips.map((chip, chipIndex) => {
             const isSelected = selected.includes(chip);
             return (
               <button
@@ -280,13 +280,13 @@ const Index = () => {
                   const otherVal = otherText[i]?.trim() || '';
                   updateAnswer(i, buildCombinedAnswer(i, freeText, next, otherVal));
                 }}
-                className={`w-full text-left rounded-lg px-4 py-2.5 text-sm font-medium border transition-all duration-200 ${
+                className={`text-left rounded-xl px-4 py-2.5 text-sm font-medium border transition-all duration-200 ${
                   isSelected
-                    ? 'bg-primary/10 border-primary text-primary'
+                    ? 'bg-primary/15 border-primary text-primary'
                     : 'bg-background/50 border-border/50 text-muted-foreground hover:border-primary/30 hover:text-foreground'
                 }`}
               >
-                {chip}
+                {chipIndex + 1}. {chip}
               </button>
             );
           })}
@@ -294,9 +294,9 @@ const Index = () => {
           <button
             type="button"
             onClick={() => setOtherOpen((prev) => ({ ...prev, [i]: !prev[i] }))}
-            className={`w-full text-left rounded-lg px-4 py-2.5 text-sm font-medium border border-dashed transition-all duration-200 ${
+            className={`text-left rounded-xl px-4 py-2.5 text-sm font-medium border border-dashed transition-all duration-200 ${
               otherOpen[i]
-                ? 'bg-primary/10 border-primary text-primary'
+                ? 'bg-primary/15 border-primary text-primary'
                 : 'bg-background/50 border-border text-muted-foreground hover:border-primary/30 hover:text-foreground'
             }`}
           >
