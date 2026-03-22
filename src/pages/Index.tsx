@@ -180,7 +180,7 @@ const Index = () => {
         setErrors([]);
         return;
       }
-      console.log('STEP3_CONTINUE', { step, currentQuestion, totalQuestions, isLastQuestion: currentQuestion >= totalQuestions - 1 });
+      
       if (currentQuestion >= totalQuestions - 1) {
         // Transition immediately — no navigateStep delay
         setCurrentQuestion(0);
