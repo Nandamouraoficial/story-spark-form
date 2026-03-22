@@ -296,14 +296,26 @@ const Admin = () => {
               Painel de gestão e exportação
             </p>
           </div>
-          {testimonials.length > 0 && (
-            <Button
-              onClick={handleExport}
-              className="rounded-xl gap-2 h-11 px-6 hover:shadow-lg hover:shadow-primary/20 transition-shadow"
-            >
-              <Download className="h-4 w-4" /> Exportar CSV
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {testimonials.length > 0 && (
+              <Button
+                onClick={handleExport}
+                className="rounded-xl gap-2 h-11 px-6 hover:shadow-lg hover:shadow-primary/20 transition-shadow"
+              >
+                <Download className="h-4 w-4" /> Exportar CSV
+              </Button>
+            )}
+            {session && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="gap-1.5 text-xs rounded-lg hover:bg-destructive/10 hover:text-destructive transition-colors"
+              >
+                <LogOut className="h-3.5 w-3.5" /> Sair
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Stats */}
