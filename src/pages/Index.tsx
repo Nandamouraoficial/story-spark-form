@@ -116,15 +116,15 @@ const Index = () => {
     }
     if (step === 3) {
       const answer = answers[currentQuestion];
-      if (!answer.trim()) {
+      const hasChips = (selectedChips[currentQuestion] || []).length > 0;
+      const hasOther = !!(otherText[currentQuestion] || '').trim();
+      if (!answer.trim() && !hasChips && !hasOther) {
         errs.push('Responda a pergunta antes de continuar');
       } else {
         // Non-blocking quality check
-        const hasChips = (selectedChips[currentQuestion] || []).length > 0;
-        const analysis = analyzeResponseQuality(answer, hasChips);
+        const analysis = analyzeResponseQuality(answer, hasChips || hasOther);
         if (analysis.level === 'weak' && !weakDismissed[currentQuestion]) {
           setWeakWarning((prev) => ({ ...prev, [currentQuestion]: true }));
-          // Don't block — just show warning
         } else {
           setWeakWarning((prev) => ({ ...prev, [currentQuestion]: false }));
         }
