@@ -22,34 +22,40 @@ const CONTEXT_INDICATORS = [
   'específic', 'concret', 'prático', 'real',
 ];
 
+export type QualityLevel = 'empty' | 'weak' | 'fair' | 'strong';
+
 export interface QualityAnalysis {
-  isGeneric: boolean;
+  level: QualityLevel;
   reason: string;
+  /** @deprecated use level instead */
+  isGeneric: boolean;
 }
 
-export function analyzeResponseQuality(text: string): QualityAnalysis {
+export function analyzeResponseQuality(text: string, hasChips = false): QualityAnalysis {
   const trimmed = text.trim();
-  if (!trimmed) return { isGeneric: true, reason: 'empty' };
-
-  const wordCount = trimmed.split(/\s+/).length;
-
-  if (wordCount < 8) {
-    return { isGeneric: true, reason: 'short' };
-  }
+  if (!trimmed) return { level: 'empty', reason: 'empty', isGeneric: true };
 
   const lower = trimmed.toLowerCase();
+
+  // Check generic patterns
   for (const pattern of GENERIC_PATTERNS) {
     if (pattern.test(lower)) {
-      return { isGeneric: true, reason: 'vague' };
+      return { level: 'weak', reason: 'vague', isGeneric: true };
     }
   }
 
-  const hasContext = CONTEXT_INDICATORS.some((ind) => lower.includes(ind));
-  if (!hasContext && wordCount < 15) {
-    return { isGeneric: true, reason: 'no_context' };
+  // If very short and no chips selected, suggest improvement (non-blocking)
+  if (trimmed.length < 10 && !hasChips) {
+    return { level: 'weak', reason: 'short', isGeneric: false };
   }
 
-  return { isGeneric: false, reason: '' };
+  // Check for context indicators
+  const hasContext = CONTEXT_INDICATORS.some((ind) => lower.includes(ind));
+  if (hasContext) {
+    return { level: 'strong', reason: '', isGeneric: false };
+  }
+
+  return { level: 'fair', reason: '', isGeneric: false };
 }
 
 const EXAMPLES_BY_TYPE: Record<MentorshipType, string[]> = {

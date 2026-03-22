@@ -9,7 +9,7 @@ import {
   MentorshipType,
   conditionalQuestions,
 } from '@/lib/testimonial-data';
-import { Download, Star, Lock, MessageSquareQuote, Users, TrendingUp, ThumbsUp, ArrowRight, Sparkles } from 'lucide-react';
+import { Download, Star, Lock, MessageSquareQuote, Users, TrendingUp, ThumbsUp, ArrowRight, Sparkles, Pencil, Save } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { MarketingOutput } from '@/lib/marketing-types';
 import MarketingModal from '@/components/MarketingModal';
@@ -35,6 +35,10 @@ const Admin = () => {
   const [marketingAttribution, setMarketingAttribution] = useState('');
   const [marketingCache, setMarketingCache] = useState<Record<string, MarketingOutput>>({});
 
+  // Inline editing
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editFields, setEditFields] = useState<{ name: string; role: string }>({ name: '', role: '' });
+
   useEffect(() => {
     if (authenticated) {
       getTestimonials().then(setTestimonials);
@@ -54,6 +58,28 @@ const Admin = () => {
       setError(false);
     } else {
       setError(true);
+    }
+  };
+
+  const handleStartEdit = (t: Testimonial) => {
+    setEditingId(t.id);
+    setEditFields({ name: t.name, role: t.role });
+  };
+
+  const handleSaveEdit = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('testimonials')
+        .update({ name: editFields.name.trim(), role: editFields.role.trim() })
+        .eq('id', id);
+      if (error) throw error;
+      setTestimonials((prev) =>
+        prev.map((t) => t.id === id ? { ...t, name: editFields.name.trim(), role: editFields.role.trim() } : t)
+      );
+      setEditingId(null);
+      toast({ title: 'Salvo', description: 'Nome e cargo atualizados.' });
+    } catch (err: any) {
+      toast({ title: 'Erro ao salvar', description: err?.message || 'Tente novamente.', variant: 'destructive' });
     }
   };
 
@@ -125,7 +151,6 @@ const Admin = () => {
     );
   };
 
-  // Background blobs shared component
   const PremiumBackground = () => (
     <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
       <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] rounded-full bg-primary/5 blur-3xl animate-blob-move" />
@@ -244,8 +269,27 @@ const Admin = () => {
                         </div>
                       )}
                       <div>
-                        <h3 className="font-semibold text-foreground text-base">{t.name}</h3>
-                        <p className="text-sm text-muted-foreground">{t.role} · {t.company}</p>
+                        {editingId === t.id ? (
+                          <div className="space-y-1.5">
+                            <Input
+                              value={editFields.name}
+                              onChange={(e) => setEditFields((f) => ({ ...f, name: e.target.value }))}
+                              className="h-8 text-sm rounded-lg"
+                              placeholder="Nome"
+                            />
+                            <Input
+                              value={editFields.role}
+                              onChange={(e) => setEditFields((f) => ({ ...f, role: e.target.value }))}
+                              className="h-8 text-sm rounded-lg"
+                              placeholder="Cargo"
+                            />
+                          </div>
+                        ) : (
+                          <>
+                            <h3 className="font-semibold text-foreground text-base">{t.name}</h3>
+                            <p className="text-sm text-muted-foreground">{t.role} · {t.company}</p>
+                          </>
+                        )}
                       </div>
                     </div>
                     <div className="flex flex-row sm:flex-col items-center sm:items-end gap-2 shrink-0">
@@ -317,6 +361,27 @@ const Admin = () => {
                     {new Date(t.timestamp).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })}
                   </p>
                   <div className="flex items-center gap-2 flex-wrap">
+                    {editingId === t.id ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleSaveEdit(t.id)}
+                        className="gap-1.5 text-xs rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
+                      >
+                        <Save className="h-3.5 w-3.5" />
+                        Salvar
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleStartEdit(t)}
+                        className="gap-1.5 text-xs rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                        Editar
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       size="sm"

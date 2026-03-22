@@ -1,0 +1,1 @@
+CREATE POLICY "Allow update testimonials" ON public.testimonials FOR UPDATE TO anon, authenticated USING (true) WITH CHECK (true);
