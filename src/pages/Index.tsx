@@ -72,10 +72,30 @@ const Index = () => {
 
   const textareaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
 
+  // Build marker for deploy verification
+  useEffect(() => {
+    console.log('BUILD_MARKER', { version: '2026-03-22-fix-step3', timestamp: Date.now() });
+  }, []);
+
   useEffect(() => {
     const timer = setTimeout(() => setStaggerReady(true), 50);
     return () => clearTimeout(timer);
   }, [stepKey]);
+
+  // Safety: recover from invalid question index via useEffect, never during render
+  useEffect(() => {
+    if (step === 3 && mentorshipType) {
+      const questions = conditionalQuestions[mentorshipType as MentorshipType] || [];
+      if (currentQuestion >= questions.length && questions.length > 0) {
+        console.warn('RECOVERY: question index out of bounds', { currentQuestion, total: questions.length });
+        setCurrentQuestion(0);
+        setStep(4);
+        setStepKey((k) => k + 1);
+        setStaggerReady(false);
+        setErrors([]);
+      }
+    }
+  }, [step, currentQuestion, mentorshipType]);
 
   const autoResize = (el: HTMLTextAreaElement | null) => {
     if (!el) return;
@@ -168,16 +188,26 @@ const Index = () => {
     if (step === 3) {
       const questions = conditionalQuestions[mentorshipType as MentorshipType] || [];
       const totalQuestions = questions.length;
-      console.log('step3 navigation', { currentQuestion, totalQuestions });
+      console.log('CLICK_CONTINUAR', {
+        step,
+        currentQuestionIndex: currentQuestion,
+        totalQuestions,
+        currentQuestionText: questions?.[currentQuestion],
+      });
       if (!totalQuestions) {
         console.error('questions não carregou para tipo:', mentorshipType);
-        navigateStep(4, 'forward');
+        setStep(4);
+        setStepKey((k) => k + 1);
+        setStaggerReady(false);
+        setErrors([]);
         return;
       }
       if (currentQuestion >= totalQuestions - 1) {
-        // última pergunta respondida — avança para step 4
         setCurrentQuestion(0);
-        navigateStep(4, 'forward');
+        setStep(4);
+        setStepKey((k) => k + 1);
+        setStaggerReady(false);
+        setErrors([]);
         return;
       }
       setCurrentQuestion(currentQuestion + 1);
@@ -350,7 +380,11 @@ const Index = () => {
             </div>
             <p className="text-center mt-3 text-xs text-muted-foreground font-medium tracking-wide uppercase">
               {stepLabels[step]}
-              {step === 3 && ` — ${currentQuestion + 1}/4`}
+              {step === 3 && mentorshipType && (() => {
+                const total = conditionalQuestions[mentorshipType as MentorshipType]?.length || 4;
+                const safe = Math.min(currentQuestion, total - 1);
+                return ` — ${safe + 1}/${total}`;
+              })()}
             </p>
           </div>
         )}
@@ -512,17 +546,13 @@ const Index = () => {
           {step === 3 && mentorshipType && (() => {
             const questions = conditionalQuestions[mentorshipType as MentorshipType] || [];
             const totalQuestions = questions.length;
-            if (!totalQuestions) {
-              return null;
-            }
-            if (currentQuestion >= totalQuestions) {
-              // Safety: index out of bounds — advance to step 4
-              setCurrentQuestion(0);
-              navigateStep(4, 'forward');
+            if (!totalQuestions || currentQuestion >= totalQuestions) {
+              // Don't setState here — the useEffect recovery handles it
               return null;
             }
             const i = currentQuestion;
             const q = questions[i];
+            if (!q) return null;
             const selected = selectedChips[i] || [];
 
             return (
