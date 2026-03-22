@@ -9,20 +9,14 @@ import {
   MentorshipType,
   conditionalQuestions,
 } from '@/lib/testimonial-data';
-import { Download, Star, Lock, MessageSquareQuote, Users, TrendingUp, ThumbsUp, ArrowRight, Sparkles, Pencil, Save } from 'lucide-react';
+import { Download, Star, Lock, MessageSquareQuote, Users, TrendingUp, ThumbsUp, ArrowRight, Sparkles, Pencil, Save, LogOut, Mail } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { MarketingOutput } from '@/lib/marketing-types';
 import MarketingModal from '@/components/MarketingModal';
 import { toast } from '@/hooks/use-toast';
+import type { Session } from '@supabase/supabase-js';
 
 const ADMIN_PASSWORD = 'admin2024';
-
-const mentorshipIcons: Record<MentorshipType, string> = {
-  empreendedorismo: '🚀',
-  crescimento: '🎯',
-  virada: '⚡',
-  linkedin: '💼',
-};
 
 const Admin = () => {
   const [authenticated, setAuthenticated] = useState(false);
@@ -38,6 +32,27 @@ const Admin = () => {
   // Inline editing
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editFields, setEditFields] = useState<{ name: string; role: string }>({ name: '', role: '' });
+
+  // Auth state
+  const [session, setSession] = useState<Session | null>(null);
+  const [authEmail, setAuthEmail] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState('');
+  const [loginMode, setLoginMode] = useState<'password' | 'email'>('password');
+
+  // Check auth session on mount
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (session) setAuthenticated(true);
+    });
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session) setAuthenticated(true);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     if (authenticated) {
@@ -59,6 +74,29 @@ const Admin = () => {
     } else {
       setError(true);
     }
+  };
+
+  const handleAuthLogin = async () => {
+    setAuthLoading(true);
+    setAuthError('');
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: authEmail,
+        password: authPassword,
+      });
+      if (error) throw error;
+    } catch (err: any) {
+      setAuthError(err?.message || 'Erro ao fazer login');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setSession(null);
+    setAuthenticated(false);
+    setPassword('');
   };
 
   const handleStartEdit = (t: Testimonial) => {
