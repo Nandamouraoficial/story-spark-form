@@ -180,6 +180,7 @@ const Index = () => {
         setErrors([]);
         return;
       }
+      console.log('STEP3_CONTINUE', { step, currentQuestion, totalQuestions, isLastQuestion: currentQuestion >= totalQuestions - 1 });
       if (currentQuestion >= totalQuestions - 1) {
         // Transition immediately — no navigateStep delay
         setCurrentQuestion(0);
@@ -524,7 +525,16 @@ const Index = () => {
             }
             const i = currentQuestion;
             const q = questions[i];
-            if (!q) return null;
+            if (!q) {
+              return (
+                <div className="glass-card rounded-2xl shadow-xl px-6 py-10 max-w-lg mx-auto text-center">
+                  <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                    <Sparkles className="h-5 w-5 animate-pulse" />
+                    <span className="text-sm">Preparando próxima etapa...</span>
+                  </div>
+                </div>
+              );
+            }
             const selected = selectedChips[i] || [];
 
             return (
@@ -802,6 +812,16 @@ const Index = () => {
           {step < 0 && (
             <div className="text-center py-12">
               <p className="text-muted-foreground">Depoimento enviado com sucesso. Obrigada por compartilhar sua experiência.</p>
+            </div>
+          )}
+
+          {/* Fallback for step 3 without mentorshipType */}
+          {step === 3 && !mentorshipType && (
+            <div className="glass-card rounded-2xl shadow-xl px-6 py-10 max-w-lg mx-auto text-center">
+              <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                <Sparkles className="h-5 w-5 animate-pulse" />
+                <span className="text-sm">Preparando perguntas...</span>
+              </div>
             </div>
           )}
         </div>
