@@ -167,16 +167,23 @@ const Index = () => {
     if (!validate()) return;
     if (step === 3) {
       const questions = conditionalQuestions[mentorshipType as MentorshipType] || [];
-      if (currentQuestion < questions.length - 1) {
-        setCurrentQuestion(currentQuestion + 1);
-        setStepKey((k) => k + 1);
-        setStaggerReady(false);
-        setErrors([]);
+      const totalQuestions = questions.length;
+      console.log('step3 navigation', { currentQuestion, totalQuestions });
+      if (!totalQuestions) {
+        console.error('questions não carregou para tipo:', mentorshipType);
+        navigateStep(4, 'forward');
         return;
       }
-      // Last question — reset and advance to step 4
-      setCurrentQuestion(0);
-      navigateStep(4, 'forward');
+      if (currentQuestion >= totalQuestions - 1) {
+        // última pergunta respondida — avança para step 4
+        setCurrentQuestion(0);
+        navigateStep(4, 'forward');
+        return;
+      }
+      setCurrentQuestion(currentQuestion + 1);
+      setStepKey((k) => k + 1);
+      setStaggerReady(false);
+      setErrors([]);
       return;
     }
     if (step === 5) {
