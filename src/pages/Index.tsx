@@ -148,14 +148,6 @@ const Index = () => {
     }
     if (step === 4) {
       if (!impactPhrase.trim()) errs.push('Preencha a frase de impacto');
-      else {
-        const analysis = analyzeResponseQuality(impactPhrase);
-        if (analysis.level === 'weak' && !impactWeakDismissed) {
-          setImpactWeakWarning(true);
-        } else {
-          setImpactWeakWarning(false);
-        }
-      }
       if (wouldRecommend === null) errs.push('Indique se recomendaria');
     }
     if (step === 5) {
