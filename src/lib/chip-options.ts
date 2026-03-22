@@ -45,12 +45,12 @@ const chipMap: Record<MentorshipType, Record<number, string[]>> = {
       'Tomava decisões importantes sem segurança nenhuma',
     ],
     1: [
-      'Passei a comunicar meu valor com clareza e sem constrangimento',
-      'Comecei a disputar posições que antes eu nem considerava',
-      'Parei de esperar estar 100% pronta para agir',
-      'Me expus estrategicamente dentro e fora da empresa',
-      'Aprendi a negociar de igual para igual com a liderança',
-      'Passei a tomar decisões com critério, não com medo',
+      'Ela não dá fórmula pronta — constrói a estratégia junto com você',
+      'Entende o contexto corporativo porque já viveu posições de decisão',
+      'Foca em ação concreta, não em reflexão sem fim',
+      'Trata sua carreira como projeto estratégico, não como terapia',
+      'Personaliza tudo — cada sessão é pensada para o seu momento',
+      'Combina visão de negócio com sensibilidade para o momento pessoal',
     ],
     2: [
       'Me candidatei a posições que antes eu descartava sozinha',

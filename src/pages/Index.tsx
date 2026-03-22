@@ -220,7 +220,14 @@ const Index = () => {
           photo,
           ...smart,
         };
-        saveTestimonial(testimonial).catch((err) => console.error('Failed to save:', err));
+        saveTestimonial(testimonial).catch((err) => {
+          console.error('Failed to save:', err);
+          toast({
+            title: 'Erro ao enviar',
+            description: 'Seu depoimento não pôde ser salvo. Por favor, tente novamente mais tarde.',
+            variant: 'destructive',
+          });
+        });
       } catch (err) {
         console.error('Error preparing testimonial:', err);
       } finally {
