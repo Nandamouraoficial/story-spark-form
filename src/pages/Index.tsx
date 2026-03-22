@@ -183,14 +183,7 @@ const Index = () => {
     if (step === 3) {
       const questions = conditionalQuestions[mentorshipType as MentorshipType] || [];
       const totalQuestions = questions.length;
-      console.log('CLICK_CONTINUAR', {
-        step,
-        currentQuestionIndex: currentQuestion,
-        totalQuestions,
-        currentQuestionText: questions?.[currentQuestion],
-      });
       if (!totalQuestions) {
-        console.error('questions não carregou para tipo:', mentorshipType);
         setStep(4);
         setStepKey((k) => k + 1);
         setStaggerReady(false);
