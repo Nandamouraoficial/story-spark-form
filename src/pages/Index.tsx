@@ -380,7 +380,11 @@ const Index = () => {
             </div>
             <p className="text-center mt-3 text-xs text-muted-foreground font-medium tracking-wide uppercase">
               {stepLabels[step]}
-              {step === 3 && ` — ${currentQuestion + 1}/4`}
+              {step === 3 && mentorshipType && (() => {
+                const total = conditionalQuestions[mentorshipType as MentorshipType]?.length || 4;
+                const safe = Math.min(currentQuestion, total - 1);
+                return ` — ${safe + 1}/${total}`;
+              })()}
             </p>
           </div>
         )}
