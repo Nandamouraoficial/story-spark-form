@@ -175,6 +175,8 @@ const Index = () => {
       }
       // Last question — reset and advance to step 4
       setCurrentQuestion(0);
+      navigateStep(4, 'forward');
+      return;
     }
     if (step === 5) {
       // Submit
