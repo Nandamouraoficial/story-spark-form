@@ -54,7 +54,7 @@ const Index = () => {
   const [wouldRecommend, setWouldRecommend] = useState<boolean | null>(null);
 
   // Step 6 - Authorization
-  const [authorized, setAuthorized] = useState(false);
+  const [authorized, setAuthorized] = useState(true);
   const [photo, setPhoto] = useState<string | undefined>(undefined);
 
   const [errors, setErrors] = useState<string[]>([]);
