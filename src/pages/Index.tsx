@@ -290,7 +290,7 @@ const Index = () => {
                   const otherVal = otherText[i]?.trim() || '';
                   updateAnswer(i, buildCombinedAnswer(i, freeText, next, otherVal));
                 }}
-                className={`rounded-full px-3 py-1.5 text-xs font-medium border transition-all duration-200 ${
+                className={`w-full text-left rounded-lg px-4 py-2.5 text-sm font-medium border transition-all duration-200 ${
                   isSelected
                     ? 'bg-primary/10 border-primary text-primary'
                     : 'bg-background/50 border-border/50 text-muted-foreground hover:border-primary/30 hover:text-foreground'
