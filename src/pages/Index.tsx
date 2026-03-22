@@ -72,11 +72,6 @@ const Index = () => {
 
   const textareaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
 
-  // Build marker for deploy verification
-  useEffect(() => {
-    console.log('BUILD_MARKER', { version: '2026-03-22-fix-step3', timestamp: Date.now() });
-  }, []);
-
   useEffect(() => {
     const timer = setTimeout(() => setStaggerReady(true), 50);
     return () => clearTimeout(timer);
@@ -87,7 +82,7 @@ const Index = () => {
     if (step === 3 && mentorshipType) {
       const questions = conditionalQuestions[mentorshipType as MentorshipType] || [];
       if (currentQuestion >= questions.length && questions.length > 0) {
-        console.warn('RECOVERY: question index out of bounds', { currentQuestion, total: questions.length });
+        
         setCurrentQuestion(0);
         setStep(4);
         setStepKey((k) => k + 1);
@@ -188,14 +183,7 @@ const Index = () => {
     if (step === 3) {
       const questions = conditionalQuestions[mentorshipType as MentorshipType] || [];
       const totalQuestions = questions.length;
-      console.log('CLICK_CONTINUAR', {
-        step,
-        currentQuestionIndex: currentQuestion,
-        totalQuestions,
-        currentQuestionText: questions?.[currentQuestion],
-      });
       if (!totalQuestions) {
-        console.error('questions não carregou para tipo:', mentorshipType);
         setStep(4);
         setStepKey((k) => k + 1);
         setStaggerReady(false);
