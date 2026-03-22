@@ -4,7 +4,7 @@ import { analyzeResponseQuality, getExampleForQuestion, QualityLevel } from '@/l
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Switch } from '@/components/ui/switch';
+
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import {
@@ -16,7 +16,7 @@ import {
   Testimonial,
 } from '@/lib/testimonial-data';
 import { getChipsForQuestion } from '@/lib/chip-options';
-import { ArrowRight, ArrowLeft, Send, Upload, Check, Sparkles, Rocket, Target, Lightbulb, Linkedin, AlertCircle, CheckCircle, ShieldOff } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Send, Upload, Check, Sparkles, Rocket, Target, Lightbulb, Linkedin, AlertCircle, CheckCircle } from 'lucide-react';
 
 const TOTAL_STEPS = 7;
 
@@ -402,21 +402,6 @@ const Index = () => {
                 Leva menos de 5 minutos. Responda com suas palavras — simples e direto.
               </p>
 
-              <div className="max-w-md mx-auto mb-6">
-                <p className="text-sm text-muted-foreground leading-relaxed mb-5">
-                  Posso usar seu depoimento com seu nome e cargo na minha página e materiais?
-                </p>
-                <div className="space-y-3">
-                  <label className="flex items-center gap-3 cursor-pointer p-3 rounded-xl border border-border hover:bg-primary/5 transition-colors">
-                    <Switch checked={authorized} onCheckedChange={() => setAuthorized(true)} />
-                    <span className="text-sm font-medium text-foreground">Sim, autorizo</span>
-                  </label>
-                  <label className="flex items-center gap-3 cursor-pointer p-3 rounded-xl border border-border hover:bg-muted/50 transition-colors">
-                    <Switch checked={!authorized} onCheckedChange={() => setAuthorized(false)} />
-                    <span className="text-sm font-medium text-foreground">Não autorizo</span>
-                  </label>
-                </div>
-              </div>
 
               <Button
                 onClick={() => navigateStep(1, 'forward')}
