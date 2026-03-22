@@ -559,7 +559,7 @@ const Index = () => {
                     onClick={handleNext}
                     className="flex-1 rounded-xl py-6 text-base font-medium glow-shadow hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
                   >
-                    {currentQuestion < 3 ? 'Próxima' : 'Continuar'} <ArrowRight className="ml-2 h-4 w-4" />
+                    {currentQuestion < (conditionalQuestions[mentorshipType as MentorshipType]?.length || 4) - 1 ? 'Próxima' : 'Continuar'} <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
               </div>
