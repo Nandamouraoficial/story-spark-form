@@ -372,31 +372,28 @@ const Index = () => {
                 Leva menos de 5 minutos. Responda com suas palavras — simples e direto.
               </p>
 
-              <div className="max-w-md mx-auto mb-4">
+              <div className="max-w-md mx-auto mb-6">
                 <p className="text-sm text-muted-foreground leading-relaxed mb-5">
                   Posso usar seu depoimento com seu nome e cargo na minha página e materiais?
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <button
-                    onClick={() => { setAuthorized(true); navigateStep(1, 'forward'); }}
-                    className="selection-card flex flex-col items-center gap-3 p-5 rounded-2xl border-2 border-border hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 cursor-pointer group"
-                  >
-                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                      <CheckCircle className="h-6 w-6 text-primary" />
-                    </div>
+                <div className="space-y-3">
+                  <label className="flex items-center gap-3 cursor-pointer p-3 rounded-xl border border-border hover:bg-primary/5 transition-colors">
+                    <Switch checked={authorized} onCheckedChange={() => setAuthorized(true)} />
                     <span className="text-sm font-medium text-foreground">Sim, autorizo</span>
-                  </button>
-                  <button
-                    onClick={() => { setAuthorized(false); navigateStep(1, 'forward'); }}
-                    className="selection-card flex flex-col items-center gap-3 p-5 rounded-2xl border-2 border-border hover:border-muted-foreground/30 hover:bg-muted/50 transition-all duration-300 cursor-pointer group"
-                  >
-                    <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                      <ShieldOff className="h-6 w-6 text-muted-foreground" />
-                    </div>
-                    <span className="text-sm font-medium text-foreground">Prefiro não identificar meu nome</span>
-                  </button>
+                  </label>
+                  <label className="flex items-center gap-3 cursor-pointer p-3 rounded-xl border border-border hover:bg-muted/50 transition-colors">
+                    <Switch checked={!authorized} onCheckedChange={() => setAuthorized(false)} />
+                    <span className="text-sm font-medium text-foreground">Não autorizo</span>
+                  </label>
                 </div>
               </div>
+
+              <Button
+                onClick={() => navigateStep(1, 'forward')}
+                className="rounded-full px-8 py-3 text-base font-medium"
+              >
+                Começar
+              </Button>
             </div>
           )}
 
