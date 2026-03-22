@@ -1,26 +1,63 @@
 
 
-## Diagnóstico: Tela Branca após Respostas (Step 3 → Step 4)
+## Correção Definitiva: Tela Branca no Deploy (Step 3 → Step 4)
 
-### Causa raiz
-No Step 3 (linha 509-597), o conteúdo é renderizado por uma IIFE que retorna `null` quando `currentQuestion >= totalQuestions` (linha 512-514). A recuperação acontece via `useEffect` (linhas 79-91), mas há um gap de pelo menos 1 frame onde **nenhum conteúdo é renderizado** — causando a tela branca.
+### Diagnóstico
 
-Fluxo do problema:
-1. Usuário clica "Continuar" na última pergunta
-2. `handleNext` faz `setCurrentQuestion(0)` + `setStep(4)` — mas durante o `navigateStep` há um `setTimeout(200ms)` onde o step ainda é 3
-3. No período entre o clique e a transição, o index pode ficar inconsistente
-4. A IIFE retorna `null` → tela branca por ~200ms (ou mais, dependendo do dispositivo)
+O código atual já tem proteções no `handleNext` (linhas 183-191) e um fallback visual (linhas 514-523). Porém, há brechas:
 
-### Correção
+1. **Linha 527**: `if (!q) return null;` — retorna `null` sem fallback visual, causando tela branca
+2. **Linha 511**: `step === 3 && mentorshipType && (...)` — se `mentorshipType` for string vazia com step 3, nada renderiza
+3. **Fallback geral (linha 802)**: Só cobre `step < 0`, não cobre steps 1-5 sem conteúdo renderizado
+4. **Possível race condition no build de produção**: React pode batchear os `setStep`/`setCurrentQuestion` diferente em prod, causando 1-2 frames onde step=3 e currentQuestion é inválido
 
-**Arquivo: `src/pages/Index.tsx`**
+### Correções em `src/pages/Index.tsx`
 
-1. **Substituir `return null` por um fallback visual no Step 3** (linha 512-514): Em vez de retornar `null` quando o índice é inválido, renderizar um loading/spinner leve dentro do glass-card, mantendo a estrutura visual enquanto o useEffect faz a recuperação.
+**1. Linha 527** — Substituir `return null` por o mesmo fallback visual:
+```tsx
+if (!q) {
+  return (
+    <div className="glass-card rounded-2xl shadow-xl px-6 py-10 max-w-lg mx-auto text-center">
+      <div className="flex items-center justify-center gap-2 text-muted-foreground">
+        <Sparkles className="h-5 w-5 animate-pulse" />
+        <span className="text-sm">Preparando próxima etapa...</span>
+      </div>
+    </div>
+  );
+}
+```
 
-2. **Eliminar o gap no `handleNext`** (linhas 183-189): Quando está na última pergunta, em vez de chamar `navigateStep` (que tem o setTimeout de 200ms), fazer a transição direta para step 4 sem o delay — `setStep(4)` imediato — já que `setCurrentQuestion(0)` já está sendo chamado junto.
+**2. Linha 511** — Cobrir o caso `step === 3` sem `mentorshipType`:
+```tsx
+{step === 3 && !mentorshipType && (
+  <div className="glass-card rounded-2xl shadow-xl px-6 py-10 max-w-lg mx-auto text-center">
+    <div className="flex items-center justify-center gap-2 text-muted-foreground">
+      <Sparkles className="h-5 w-5 animate-pulse" />
+      <span className="text-sm">Preparando perguntas...</span>
+    </div>
+  </div>
+)}
+```
 
-3. **Adicionar fallback geral para steps sem conteúdo**: Após o bloco do step 5 e antes do step 6, adicionar um catch-all que detecta se nenhum conteúdo foi renderizado para o step atual (steps 1-5) e mostra um fallback em vez de branco.
+**3. Linhas 801-806** — Expandir o fallback geral para cobrir qualquer step sem conteúdo:
+```tsx
+{/* Safety fallback — catch any unrendered step */}
+{(step < 0 || (step >= 1 && step <= 5 && !mentorshipType && step === 3)) && (
+  ...
+)}
+```
+Substituir por um fallback mais abrangente que cubra qualquer gap.
+
+**4. Adicionar console.log temporário** no `handleNext` (step === 3) para debug no deploy:
+```tsx
+console.log('STEP3_CONTINUE', { step, currentQuestion, totalQuestions, isLastQuestion: currentQuestion >= totalQuestions - 1 });
+```
+
+**5. Forçar `setAnimating(false)` antes do `setStep(4)`** na transição da última pergunta, garantindo que o container não fica com `opacity-0` durante a troca.
+
+### Arquivo alterado
+- `src/pages/Index.tsx`
 
 ### Resultado
-Nunca mais haverá um frame sem conteúdo visual durante a transição entre perguntas ou entre steps.
+Zero possibilidade de tela branca: todo caminho de renderização tem conteúdo visual. O log temporário permitirá validar o comportamento no deploy.
 
