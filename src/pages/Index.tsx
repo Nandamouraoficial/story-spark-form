@@ -72,11 +72,6 @@ const Index = () => {
 
   const textareaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
 
-  // Build marker for deploy verification
-  useEffect(() => {
-    console.log('BUILD_MARKER', { version: '2026-03-22-fix-step3', timestamp: Date.now() });
-  }, []);
-
   useEffect(() => {
     const timer = setTimeout(() => setStaggerReady(true), 50);
     return () => clearTimeout(timer);
