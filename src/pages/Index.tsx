@@ -402,21 +402,6 @@ const Index = () => {
                 Leva menos de 5 minutos. Responda com suas palavras — simples e direto.
               </p>
 
-              <div className="max-w-md mx-auto mb-6">
-                <p className="text-sm text-muted-foreground leading-relaxed mb-5">
-                  Posso usar seu depoimento com seu nome e cargo na minha página e materiais?
-                </p>
-                <div className="space-y-3">
-                  <label className="flex items-center gap-3 cursor-pointer p-3 rounded-xl border border-border hover:bg-primary/5 transition-colors">
-                    <Switch checked={authorized} onCheckedChange={() => setAuthorized(true)} />
-                    <span className="text-sm font-medium text-foreground">Sim, autorizo</span>
-                  </label>
-                  <label className="flex items-center gap-3 cursor-pointer p-3 rounded-xl border border-border hover:bg-muted/50 transition-colors">
-                    <Switch checked={!authorized} onCheckedChange={() => setAuthorized(false)} />
-                    <span className="text-sm font-medium text-foreground">Não autorizo</span>
-                  </label>
-                </div>
-              </div>
 
               <Button
                 onClick={() => navigateStep(1, 'forward')}
