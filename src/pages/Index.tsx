@@ -181,7 +181,9 @@ const Index = () => {
         return;
       }
       if (currentQuestion >= totalQuestions - 1) {
+        // Transition immediately — no navigateStep delay
         setCurrentQuestion(0);
+        setAnimating(false);
         setStep(4);
         setStepKey((k) => k + 1);
         setStaggerReady(false);
