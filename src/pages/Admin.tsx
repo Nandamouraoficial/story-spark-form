@@ -18,6 +18,13 @@ import type { Session } from '@supabase/supabase-js';
 
 const ADMIN_PASSWORD = 'admin2024';
 
+const mentorshipIcons: Record<MentorshipType, string> = {
+  empreendedorismo: '🚀',
+  crescimento: '🎯',
+  virada: '⚡',
+  linkedin: '💼',
+};
+
 const Admin = () => {
   const [authenticated, setAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
