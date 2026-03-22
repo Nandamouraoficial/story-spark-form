@@ -792,7 +792,7 @@ const Index = () => {
                   onClick={handleNext}
                   className="flex-1 rounded-xl py-6 text-base font-medium glow-shadow hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
                 >
-                  <Send className="mr-2 h-4 w-4" /> Enviar meu depoimento
+                  <Send className="mr-2 h-4 w-4" /> {submitting ? 'Enviando...' : 'Enviar meu depoimento'}
                 </Button>
               </div>
             </div>
