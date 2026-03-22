@@ -1,18 +1,27 @@
 
 
-## Chips em Lista Vertical
+## Correção: Validação da Frase de Impacto (Step 4)
 
-### O que muda
-Trocar o layout dos chips de `flex flex-wrap` (horizontal) para `flex flex-col` (lista vertical), para que cada opção apareça em sua própria linha.
+### Problema
+A validação do step 4 bloqueia o avanço mesmo quando `impactPhrase` tem conteúdo, por causa da checagem de qualidade `weak` que exige dismiss explícito.
 
-### Alteração em `src/pages/Index.tsx`
+### Correção em `src/pages/Index.tsx` (linhas 149-158)
 
-**Linha 277**: Mudar `flex flex-wrap gap-2` para `flex flex-col gap-2`
+Simplificar a validação do step 4:
+- Se `impactPhrase.trim()` tiver conteúdo → permitir avançar, sem checagem de qualidade
+- Só bloquear se o campo estiver vazio
+- Remover a lógica de `impactWeakWarning` / `impactWeakDismissed` que complica o fluxo
 
-**Linhas 293-296**: Ajustar o estilo dos botões de chip — remover `rounded-full` e usar `rounded-lg`, alinhar texto à esquerda com `text-left w-full`, para ficarem como itens de lista clicáveis.
+Código resultante:
+```ts
+if (step === 4) {
+  if (!impactPhrase.trim()) errs.push('Preencha a frase de impacto');
+  if (wouldRecommend === null) errs.push('Indique se recomendaria');
+}
+```
 
-O chip "Outro..." (linha 304-314) segue o mesmo estilo de lista.
+Também remover da UI do step 4 o bloco de warning não-bloqueante relacionado a `impactWeakWarning`, já que não será mais necessário.
 
-### Resultado
-Cada opção aparece como um item de lista, uma abaixo da outra, mais fácil de ler e selecionar.
+### Arquivo alterado
+- `src/pages/Index.tsx`
 
