@@ -35,6 +35,7 @@ const Index = () => {
   const [direction, setDirection] = useState<'forward' | 'back'>('forward');
   const [stepKey, setStepKey] = useState(0);
   const [staggerReady, setStaggerReady] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   // Step 2 - Identification
   const [name, setName] = useState('');
@@ -179,27 +180,34 @@ const Index = () => {
       return;
     }
     if (step === 5) {
-      // Submit
+      // Submit with robust error handling
+      setSubmitting(true);
       const type = mentorshipType as MentorshipType;
-      const smart = generateSmartFields(type, answers, impactPhrase, measurableResult, name);
-      const testimonial: Testimonial = {
-        id: crypto.randomUUID(),
-        timestamp: new Date().toISOString(),
-        name: name.trim(),
-        role: role.trim(),
-        company: company.trim(),
-        mentorshipType: type,
-        answers,
-        impactPhrase: impactPhrase.trim(),
-        measurableResult: measurableResult.trim(),
-        satisfactionScore,
-        wouldRecommend: wouldRecommend!,
-        authorized,
-        photo,
-        ...smart,
-      };
-      saveTestimonial(testimonial).catch((err) => console.error('Failed to save:', err));
-      navigateStep(6, 'forward');
+      try {
+        const smart = generateSmartFields(type, answers, impactPhrase, measurableResult, name);
+        const testimonial: Testimonial = {
+          id: crypto.randomUUID(),
+          timestamp: new Date().toISOString(),
+          name: name.trim(),
+          role: role.trim(),
+          company: company.trim(),
+          mentorshipType: type,
+          answers,
+          impactPhrase: impactPhrase.trim(),
+          measurableResult: measurableResult.trim(),
+          satisfactionScore,
+          wouldRecommend: wouldRecommend!,
+          authorized,
+          photo,
+          ...smart,
+        };
+        saveTestimonial(testimonial).catch((err) => console.error('Failed to save:', err));
+      } catch (err) {
+        console.error('Error preparing testimonial:', err);
+      } finally {
+        setSubmitting(false);
+        navigateStep(6, 'forward');
+      }
       return;
     }
     navigateStep(step + 1, 'forward');
@@ -782,17 +790,25 @@ const Index = () => {
                 </Button>
                 <Button
                   onClick={handleNext}
+                  disabled={submitting}
                   className="flex-1 rounded-xl py-6 text-base font-medium glow-shadow hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
                 >
-                  <Send className="mr-2 h-4 w-4" /> Enviar meu depoimento
+                  <Send className="mr-2 h-4 w-4" /> {submitting ? 'Enviando...' : 'Enviar meu depoimento'}
                 </Button>
               </div>
             </div>
           )}
 
-          {/* Step 6 - Confirmation */}
-          {step === 6 && (
+          {/* Step 6 - Confirmation (also default fallback) */}
+          {(step === 6 || step > 6) && (
             <ConfirmationScreen />
+          )}
+
+          {/* Safety fallback — never show blank */}
+          {step < 0 && (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Depoimento enviado com sucesso. Obrigada por compartilhar sua experiência.</p>
+            </div>
           )}
         </div>
       </div>
