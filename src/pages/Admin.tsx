@@ -213,26 +213,72 @@ const Admin = () => {
           </div>
           <div>
             <h1 className="font-display text-2xl font-semibold text-foreground">Área restrita</h1>
-            <p className="text-muted-foreground text-sm mt-2">Digite a senha para acessar os depoimentos</p>
+            <p className="text-muted-foreground text-sm mt-2">
+              {loginMode === 'email' ? 'Faça login com sua conta' : 'Digite a senha para acessar os depoimentos'}
+            </p>
           </div>
-          <form
-            onSubmit={(e) => { e.preventDefault(); handleLogin(); }}
-            className="space-y-4"
-          >
-            <Input
-              type="password"
-              placeholder="Senha de acesso"
-              value={password}
-              onChange={(e) => { setPassword(e.target.value); setError(false); }}
-              className={`rounded-xl h-12 text-center text-lg tracking-widest bg-background/60 border-border/50 focus:border-primary transition-colors ${error ? 'border-destructive shake' : ''}`}
-            />
-            {error && (
-              <p className="text-destructive text-sm animate-fade-up">Senha incorreta</p>
-            )}
-            <Button type="submit" className="w-full rounded-xl h-12 text-base font-medium">
-              Acessar
-            </Button>
-          </form>
+
+          {loginMode === 'email' ? (
+            <form
+              onSubmit={(e) => { e.preventDefault(); handleAuthLogin(); }}
+              className="space-y-4"
+            >
+              <Input
+                type="email"
+                placeholder="E-mail"
+                value={authEmail}
+                onChange={(e) => { setAuthEmail(e.target.value); setAuthError(''); }}
+                className="rounded-xl h-12 bg-background/60 border-border/50 focus:border-primary transition-colors"
+              />
+              <Input
+                type="password"
+                placeholder="Senha"
+                value={authPassword}
+                onChange={(e) => { setAuthPassword(e.target.value); setAuthError(''); }}
+                className="rounded-xl h-12 bg-background/60 border-border/50 focus:border-primary transition-colors"
+              />
+              {authError && (
+                <p className="text-destructive text-sm animate-fade-up">{authError}</p>
+              )}
+              <Button type="submit" disabled={authLoading} className="w-full rounded-xl h-12 text-base font-medium gap-2">
+                <Mail className="h-4 w-4" />
+                {authLoading ? 'Entrando...' : 'Entrar'}
+              </Button>
+              <button
+                type="button"
+                onClick={() => setLoginMode('password')}
+                className="text-xs text-muted-foreground hover:text-primary transition-colors"
+              >
+                Usar senha de acesso rápido
+              </button>
+            </form>
+          ) : (
+            <form
+              onSubmit={(e) => { e.preventDefault(); handleLogin(); }}
+              className="space-y-4"
+            >
+              <Input
+                type="password"
+                placeholder="Senha de acesso"
+                value={password}
+                onChange={(e) => { setPassword(e.target.value); setError(false); }}
+                className={`rounded-xl h-12 text-center text-lg tracking-widest bg-background/60 border-border/50 focus:border-primary transition-colors ${error ? 'border-destructive shake' : ''}`}
+              />
+              {error && (
+                <p className="text-destructive text-sm animate-fade-up">Senha incorreta</p>
+              )}
+              <Button type="submit" className="w-full rounded-xl h-12 text-base font-medium">
+                Acessar
+              </Button>
+              <button
+                type="button"
+                onClick={() => setLoginMode('email')}
+                className="text-xs text-muted-foreground hover:text-primary transition-colors gap-1 inline-flex items-center"
+              >
+                <Mail className="h-3 w-3" /> Entrar com e-mail
+              </button>
+            </form>
+          )}
         </div>
       </div>
     );
