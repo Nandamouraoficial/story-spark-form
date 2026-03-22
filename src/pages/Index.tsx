@@ -372,19 +372,31 @@ const Index = () => {
                 Leva menos de 5 minutos. Responda com suas palavras — simples e direto.
               </p>
 
-              <div className="glass-card rounded-2xl p-5 max-w-md mx-auto mb-8">
-                <p className="text-sm text-muted-foreground leading-relaxed">
+              <div className="max-w-md mx-auto mb-4">
+                <p className="text-sm text-muted-foreground leading-relaxed mb-5">
                   Posso usar seu depoimento com seu nome e cargo na minha página e materiais?
                 </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <button
+                    onClick={() => { setAuthorized(true); navigateStep(1, 'forward'); }}
+                    className="selection-card flex flex-col items-center gap-3 p-5 rounded-2xl border-2 border-border hover:border-primary/50 hover:bg-primary/5 transition-all duration-300 cursor-pointer group"
+                  >
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <CheckCircle className="h-6 w-6 text-primary" />
+                    </div>
+                    <span className="text-sm font-medium text-foreground">Sim, autorizo</span>
+                  </button>
+                  <button
+                    onClick={() => { setAuthorized(false); navigateStep(1, 'forward'); }}
+                    className="selection-card flex flex-col items-center gap-3 p-5 rounded-2xl border-2 border-border hover:border-muted-foreground/30 hover:bg-muted/50 transition-all duration-300 cursor-pointer group"
+                  >
+                    <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                      <ShieldOff className="h-6 w-6 text-muted-foreground" />
+                    </div>
+                    <span className="text-sm font-medium text-foreground">Prefiro não identificar meu nome</span>
+                  </button>
+                </div>
               </div>
-
-              <Button
-                onClick={() => navigateStep(1, 'forward')}
-                size="lg"
-                className="px-10 py-6 text-base font-medium rounded-2xl glow-shadow hover:scale-[1.03] active:scale-[0.98] transition-all duration-300 ease-out"
-              >
-                Começar <ArrowRight className="ml-2 h-4 w-4 animate-breathe" />
-              </Button>
             </div>
           )}
 
