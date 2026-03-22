@@ -67,8 +67,6 @@ const Index = () => {
   // Non-blocking quality suggestions
   const [weakWarning, setWeakWarning] = useState<Record<number, boolean>>({});
   const [weakDismissed, setWeakDismissed] = useState<Record<number, boolean>>({});
-  const [impactWeakWarning, setImpactWeakWarning] = useState(false);
-  const [impactWeakDismissed, setImpactWeakDismissed] = useState(false);
 
   const textareaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
 
