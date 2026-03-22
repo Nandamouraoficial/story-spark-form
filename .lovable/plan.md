@@ -1,21 +1,20 @@
 
 
-## Plano: Duas Correções Pontuais
+## Correção: Chips no índice errado em `crescimento`
 
-### 1. Corrigir chips de `crescimento[2]` em `src/lib/chip-options.ts`
+### Problema
+A edição anterior substituiu os chips de `crescimento[1]` (pergunta 2) pelos novos chips sobre diferenciais da mentora, mas o correto era substituir `crescimento[2]` (pergunta 3: "O que eu faço diferente de outros profissionais que orientam executivos?").
 
-**Linhas 55-62**: Substituir os 6 chips atuais (que falam sobre ações da cliente) pelos 6 novos chips sobre diferenciais da mentora.
+Resultado: pergunta 2 mostra chips de mentor (errado), pergunta 3 mostra chips de ação da cliente (errado).
 
-### 2. Adicionar toast de erro no salvamento em `src/pages/Index.tsx`
+### Correção em `src/lib/chip-options.ts`
 
-- **Linha 1 (ou após imports existentes)**: Adicionar `import { toast } from '@/hooks/use-toast';`
-- **Linha 222**: Substituir o `.catch` simples pelo bloco com `toast({ variant: 'destructive', ... })`
+**1. Restaurar `crescimento[1]`** (linhas 48-53) com os chips originais sobre mudanças de posicionamento:
+- "Ela não dá fórmula pronta — constrói a estratégia junto com você" → voltar para os originais sobre o que mudou na carreira
 
-### 3. Políticas RLS — Já existem
+**2. Substituir `crescimento[2]`** (linhas 55-62) pelos chips sobre diferenciais da mentora:
+- Colocar os 6 chips novos aqui
 
-As políticas "Allow anon update" e "Allow anon delete" **já estão ativas** na tabela `testimonials` (confirmado na configuração atual). Nenhuma migração necessária.
-
-### Arquivos alterados
-- `src/lib/chip-options.ts` — 6 linhas substituídas
-- `src/pages/Index.tsx` — 1 import adicionado + 1 linha substituída
+### Arquivo alterado
+- `src/lib/chip-options.ts` — trocar o conteúdo entre os índices 1 e 2
 
