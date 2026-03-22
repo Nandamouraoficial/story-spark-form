@@ -814,6 +814,16 @@ const Index = () => {
               <p className="text-muted-foreground">Depoimento enviado com sucesso. Obrigada por compartilhar sua experiência.</p>
             </div>
           )}
+
+          {/* Fallback for step 3 without mentorshipType */}
+          {step === 3 && !mentorshipType && (
+            <div className="glass-card rounded-2xl shadow-xl px-6 py-10 max-w-lg mx-auto text-center">
+              <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                <Sparkles className="h-5 w-5 animate-pulse" />
+                <span className="text-sm">Preparando perguntas...</span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
