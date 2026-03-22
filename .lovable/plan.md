@@ -1,22 +1,26 @@
 
 
-## Autorização na Tela Inicial (Step 0)
+## Autorização com Switches (Sim/Não)
 
-### O que muda
-Substituir o texto estático de autorização no step 0 por dois botões claros. A escolha define o valor de `authorized` desde o início do formulário.
+### O que muda no Step 0 (`src/pages/Index.tsx`)
 
-### Alterações em `src/pages/Index.tsx`
+Substituir os dois botões-cards por dois switches (toggles) empilhados:
 
-**Step 0** — Substituir o glass-card com texto passivo por dois botões de seleção:
-- "Sim, autorizo" → `setAuthorized(true)` + avança para step 1
-- "Prefiro não identificar meu nome" → `setAuthorized(false)` + avança para step 1
-- Remover o botão "Começar" genérico — a escolha de autorização já serve como ação de avanço
-- Estilo: dois cards clicáveis lado a lado (ou empilhados no mobile), com ícones (CheckCircle / ShieldOff)
+1. **"Sim, autorizo"** — switch que já vem **ligado** (checked por padrão)
+2. **"Não autorizo"** — switch que vem **desligado**
 
-**Step 5** — Manter a checkbox de autorização existente, mas pré-popular com o valor escolhido no step 0. A pessoa pode mudar de ideia antes de enviar.
+Funcionam como radio: ao ligar um, o outro desliga automaticamente. Como `authorized` já inicia como `false` (linha 57), mudar para `useState(true)` para que "Sim, autorizo" venha pré-selecionado.
 
-**Validação step 5** — Remover a validação `if (!authorized) errs.push(...)` pois agora a pessoa pode conscientemente escolher não autorizar.
+Adicionar um botão "Começar" abaixo dos switches para avançar para o step 1 (sem que o clique no switch avance automaticamente).
 
-### Arquivos alterados
-- `src/pages/Index.tsx` — step 0 (botões de autorização), step 5 (pré-populado), validação
+### Detalhes técnicos
+
+- `useState(true)` para `authorized` — já vem ticado no "Sim"
+- Dois componentes `Switch` do shadcn, cada um com label ao lado
+- Switch "Sim": `checked={authorized}`, `onCheckedChange={() => setAuthorized(true)}`
+- Switch "Não": `checked={!authorized}`, `onCheckedChange={() => setAuthorized(false)}`
+- Botão "Começar" abaixo para avançar
+
+### Arquivo alterado
+- `src/pages/Index.tsx` — step 0 (UI dos switches) e inicialização de `authorized`
 
