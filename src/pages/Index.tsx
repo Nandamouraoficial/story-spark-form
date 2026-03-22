@@ -274,7 +274,7 @@ const Index = () => {
 
     return (
       <div className="space-y-2">
-        <div className="flex flex-wrap gap-2 animate-scale-fade-in">
+        <div className="flex flex-col gap-2 animate-scale-fade-in">
           {chips.map((chip) => {
             const isSelected = selected.includes(chip);
             return (
@@ -290,7 +290,7 @@ const Index = () => {
                   const otherVal = otherText[i]?.trim() || '';
                   updateAnswer(i, buildCombinedAnswer(i, freeText, next, otherVal));
                 }}
-                className={`rounded-full px-3 py-1.5 text-xs font-medium border transition-all duration-200 ${
+                className={`w-full text-left rounded-lg px-4 py-2.5 text-sm font-medium border transition-all duration-200 ${
                   isSelected
                     ? 'bg-primary/10 border-primary text-primary'
                     : 'bg-background/50 border-border/50 text-muted-foreground hover:border-primary/30 hover:text-foreground'
@@ -304,7 +304,7 @@ const Index = () => {
           <button
             type="button"
             onClick={() => setOtherOpen((prev) => ({ ...prev, [i]: !prev[i] }))}
-            className={`rounded-full px-3 py-1.5 text-xs font-medium border border-dashed transition-all duration-200 ${
+            className={`w-full text-left rounded-lg px-4 py-2.5 text-sm font-medium border border-dashed transition-all duration-200 ${
               otherOpen[i]
                 ? 'bg-primary/10 border-primary text-primary'
                 : 'bg-background/50 border-border text-muted-foreground hover:border-primary/30 hover:text-foreground'
