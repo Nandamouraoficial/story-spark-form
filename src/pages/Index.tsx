@@ -304,7 +304,7 @@ const Index = () => {
           <button
             type="button"
             onClick={() => setOtherOpen((prev) => ({ ...prev, [i]: !prev[i] }))}
-            className={`rounded-full px-3 py-1.5 text-xs font-medium border border-dashed transition-all duration-200 ${
+            className={`w-full text-left rounded-lg px-4 py-2.5 text-sm font-medium border border-dashed transition-all duration-200 ${
               otherOpen[i]
                 ? 'bg-primary/10 border-primary text-primary'
                 : 'bg-background/50 border-border text-muted-foreground hover:border-primary/30 hover:text-foreground'
