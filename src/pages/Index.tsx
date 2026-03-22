@@ -180,27 +180,34 @@ const Index = () => {
       return;
     }
     if (step === 5) {
-      // Submit
+      // Submit with robust error handling
+      setSubmitting(true);
       const type = mentorshipType as MentorshipType;
-      const smart = generateSmartFields(type, answers, impactPhrase, measurableResult, name);
-      const testimonial: Testimonial = {
-        id: crypto.randomUUID(),
-        timestamp: new Date().toISOString(),
-        name: name.trim(),
-        role: role.trim(),
-        company: company.trim(),
-        mentorshipType: type,
-        answers,
-        impactPhrase: impactPhrase.trim(),
-        measurableResult: measurableResult.trim(),
-        satisfactionScore,
-        wouldRecommend: wouldRecommend!,
-        authorized,
-        photo,
-        ...smart,
-      };
-      saveTestimonial(testimonial).catch((err) => console.error('Failed to save:', err));
-      navigateStep(6, 'forward');
+      try {
+        const smart = generateSmartFields(type, answers, impactPhrase, measurableResult, name);
+        const testimonial: Testimonial = {
+          id: crypto.randomUUID(),
+          timestamp: new Date().toISOString(),
+          name: name.trim(),
+          role: role.trim(),
+          company: company.trim(),
+          mentorshipType: type,
+          answers,
+          impactPhrase: impactPhrase.trim(),
+          measurableResult: measurableResult.trim(),
+          satisfactionScore,
+          wouldRecommend: wouldRecommend!,
+          authorized,
+          photo,
+          ...smart,
+        };
+        saveTestimonial(testimonial).catch((err) => console.error('Failed to save:', err));
+      } catch (err) {
+        console.error('Error preparing testimonial:', err);
+      } finally {
+        setSubmitting(false);
+        navigateStep(6, 'forward');
+      }
       return;
     }
     navigateStep(step + 1, 'forward');
