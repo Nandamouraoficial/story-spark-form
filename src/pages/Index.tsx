@@ -35,6 +35,7 @@ const Index = () => {
   const [direction, setDirection] = useState<'forward' | 'back'>('forward');
   const [stepKey, setStepKey] = useState(0);
   const [staggerReady, setStaggerReady] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   // Step 2 - Identification
   const [name, setName] = useState('');
