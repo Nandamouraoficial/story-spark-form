@@ -181,7 +181,9 @@ const Index = () => {
         return;
       }
       if (currentQuestion >= totalQuestions - 1) {
+        // Transition immediately — no navigateStep delay
         setCurrentQuestion(0);
+        setAnimating(false);
         setStep(4);
         setStepKey((k) => k + 1);
         setStaggerReady(false);
@@ -510,8 +512,15 @@ const Index = () => {
             const questions = conditionalQuestions[mentorshipType as MentorshipType] || [];
             const totalQuestions = questions.length;
             if (!totalQuestions || currentQuestion >= totalQuestions) {
-              // Don't setState here — the useEffect recovery handles it
-              return null;
+              // Fallback visual while useEffect recovers the state
+              return (
+                <div className="glass-card rounded-2xl shadow-xl px-6 py-10 max-w-lg mx-auto text-center">
+                  <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                    <Sparkles className="h-5 w-5 animate-pulse" />
+                    <span className="text-sm">Preparando próxima etapa...</span>
+                  </div>
+                </div>
+              );
             }
             const i = currentQuestion;
             const q = questions[i];
