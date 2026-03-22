@@ -510,7 +510,17 @@ const Index = () => {
 
           {/* Step 3 - One Question at a Time */}
           {step === 3 && mentorshipType && (() => {
-            const questions = conditionalQuestions[mentorshipType as MentorshipType];
+            const questions = conditionalQuestions[mentorshipType as MentorshipType] || [];
+            const totalQuestions = questions.length;
+            if (!totalQuestions) {
+              return null;
+            }
+            if (currentQuestion >= totalQuestions) {
+              // Safety: index out of bounds — advance to step 4
+              setCurrentQuestion(0);
+              navigateStep(4, 'forward');
+              return null;
+            }
             const i = currentQuestion;
             const q = questions[i];
             const selected = selectedChips[i] || [];
