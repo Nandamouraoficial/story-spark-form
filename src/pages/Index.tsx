@@ -798,9 +798,16 @@ const Index = () => {
             </div>
           )}
 
-          {/* Step 6 - Confirmation */}
-          {step === 6 && (
+          {/* Step 6 - Confirmation (also default fallback) */}
+          {(step === 6 || step > 6) && (
             <ConfirmationScreen />
+          )}
+
+          {/* Safety fallback — never show blank */}
+          {step < 0 && (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Depoimento enviado com sucesso. Obrigada por compartilhar sua experiência.</p>
+            </div>
           )}
         </div>
       </div>
