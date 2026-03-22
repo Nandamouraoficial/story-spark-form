@@ -142,7 +142,7 @@ const Index = () => {
       if (wouldRecommend === null) errs.push('Indique se recomendaria');
     }
     if (step === 5) {
-      if (!authorized) errs.push('A autorização é obrigatória');
+      // Authorization is optional — user already chose in step 0
     }
     setErrors(errs);
     return errs.length === 0;
