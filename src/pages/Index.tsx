@@ -524,11 +524,9 @@ const Index = () => {
           )}
 
           {/* Step 3 - One Question at a Time */}
-          {step === 3 && mentorshipType && (() => {
-            const questions = conditionalQuestions[mentorshipType as MentorshipType] || [];
-            const totalQuestions = questions.length;
-            if (!totalQuestions || currentQuestion >= totalQuestions) {
-              // Fallback visual while useEffect recovers the state
+          {step === 3 && (() => {
+            // If no valid question can be shown, render a safe fallback
+            if (isInvalidStep3 || !currentStepQuestion) {
               return (
                 <div className="glass-card rounded-2xl shadow-xl px-6 py-10 max-w-lg mx-auto text-center">
                   <div className="flex items-center justify-center gap-2 text-muted-foreground">
@@ -538,18 +536,8 @@ const Index = () => {
                 </div>
               );
             }
-            const i = currentQuestion;
-            const q = questions[i];
-            if (!q) {
-              return (
-                <div className="glass-card rounded-2xl shadow-xl px-6 py-10 max-w-lg mx-auto text-center">
-                  <div className="flex items-center justify-center gap-2 text-muted-foreground">
-                    <Sparkles className="h-5 w-5 animate-pulse" />
-                    <span className="text-sm">Preparando próxima etapa...</span>
-                  </div>
-                </div>
-              );
-            }
+            const i = safeQuestionIndex;
+            const q = currentStepQuestion;
             const selected = selectedChips[i] || [];
 
             return (
@@ -559,7 +547,7 @@ const Index = () => {
                     Sua experiência
                   </h2>
                   <p className="text-muted-foreground mt-1 text-sm">
-                    Pergunta {i + 1} de 4 — conte com suas palavras
+                    Pergunta {i + 1} de {step3Total} — conte com suas palavras
                   </p>
                 </div>
                 <div className="space-y-4">
@@ -572,7 +560,7 @@ const Index = () => {
                   {renderQuestionChips(i)}
                   <Textarea
                     ref={(el) => { textareaRefs.current[i] = el; }}
-                    value={getFreeText(answers[i])}
+                    value={getFreeText(answers[i] ?? '')}
                     onChange={(e) => {
                       const freeText = e.target.value;
                       const otherVal = otherText[i]?.trim() || '';
@@ -623,7 +611,7 @@ const Index = () => {
                     onClick={handleNext}
                     className="flex-1 rounded-xl py-6 text-base font-medium glow-shadow hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
                   >
-                    {currentQuestion < (conditionalQuestions[mentorshipType as MentorshipType]?.length || 4) - 1 ? 'Próxima' : 'Continuar'} <ArrowRight className="ml-2 h-4 w-4" />
+                    {!isLastQuestion ? 'Próxima' : 'Continuar'} <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
               </div>
