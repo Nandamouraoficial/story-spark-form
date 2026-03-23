@@ -506,6 +506,36 @@ const Admin = () => {
                       <Sparkles className="h-3.5 w-3.5" />
                       Gerar Marketing
                     </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="gap-1.5 text-xs rounded-lg hover:bg-destructive/10 hover:text-destructive transition-colors"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          Excluir
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Excluir depoimento?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            O depoimento de <strong>{t.name}</strong> será removido permanentemente. Essa ação não pode ser desfeita.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(t.id)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Excluir
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                    </Button>
                     <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${t.wouldRecommend ? 'bg-green-500/10 text-green-600' : 'bg-destructive/10 text-destructive'}`}>
                       {t.wouldRecommend ? '✓ Indicaria' : '✗ Não indicaria'}
                     </span>
