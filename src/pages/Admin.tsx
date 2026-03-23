@@ -9,7 +9,8 @@ import {
   MentorshipType,
   conditionalQuestions,
 } from '@/lib/testimonial-data';
-import { Download, Star, Lock, MessageSquareQuote, Users, TrendingUp, ThumbsUp, ArrowRight, Sparkles, Pencil, Save, LogOut, Mail } from 'lucide-react';
+import { Download, Star, Lock, MessageSquareQuote, Users, TrendingUp, ThumbsUp, ArrowRight, Sparkles, Pencil, Save, LogOut, Mail, Trash2 } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { MarketingOutput } from '@/lib/marketing-types';
 import MarketingModal from '@/components/MarketingModal';
@@ -125,6 +126,17 @@ const Admin = () => {
       toast({ title: 'Salvo', description: 'Nome e cargo atualizados.' });
     } catch (err: any) {
       toast({ title: 'Erro ao salvar', description: err?.message || 'Tente novamente.', variant: 'destructive' });
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase.from('testimonials').delete().eq('id', id);
+      if (error) throw error;
+      setTestimonials((prev) => prev.filter((t) => t.id !== id));
+      toast({ title: 'Excluído', description: 'Depoimento removido com sucesso.' });
+    } catch (err: any) {
+      toast({ title: 'Erro ao excluir', description: err?.message || 'Tente novamente.', variant: 'destructive' });
     }
   };
 
@@ -494,6 +506,35 @@ const Admin = () => {
                       <Sparkles className="h-3.5 w-3.5" />
                       Gerar Marketing
                     </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="gap-1.5 text-xs rounded-lg hover:bg-destructive/10 hover:text-destructive transition-colors"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                          Excluir
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Excluir depoimento?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            O depoimento de <strong>{t.name}</strong> será removido permanentemente. Essa ação não pode ser desfeita.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDelete(t.id)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Excluir
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                     <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${t.wouldRecommend ? 'bg-green-500/10 text-green-600' : 'bg-destructive/10 text-destructive'}`}>
                       {t.wouldRecommend ? '✓ Indicaria' : '✗ Não indicaria'}
                     </span>
