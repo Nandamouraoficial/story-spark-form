@@ -145,10 +145,10 @@ const Index = () => {
       } else {
         // Non-blocking quality check
         const analysis = analyzeResponseQuality(answer, hasChips || hasOther);
-        if (analysis.level === 'weak' && !weakDismissed[currentQuestion]) {
-          setWeakWarning((prev) => ({ ...prev, [currentQuestion]: true }));
+        if (analysis.level === 'weak' && !weakDismissed[safeQuestionIndex]) {
+          setWeakWarning((prev) => ({ ...prev, [safeQuestionIndex]: true }));
         } else {
-          setWeakWarning((prev) => ({ ...prev, [currentQuestion]: false }));
+          setWeakWarning((prev) => ({ ...prev, [safeQuestionIndex]: false }));
         }
       }
     }
