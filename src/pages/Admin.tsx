@@ -535,7 +535,6 @@ const Admin = () => {
                         </AlertDialogFooter>
                       </AlertDialogContent>
                     </AlertDialog>
-                    </Button>
                     <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${t.wouldRecommend ? 'bg-green-500/10 text-green-600' : 'bg-destructive/10 text-destructive'}`}>
                       {t.wouldRecommend ? '✓ Indicaria' : '✗ Não indicaria'}
                     </span>
