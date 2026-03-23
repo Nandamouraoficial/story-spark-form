@@ -179,18 +179,18 @@ const Index = () => {
   const handleNext = () => {
     if (!validate()) return;
     if (step === 3) {
-      const questions = conditionalQuestions[mentorshipType as MentorshipType] || [];
-      const totalQuestions = questions.length;
-      if (!totalQuestions) {
+      // No valid questions or invalid state → go to step 4
+      if (isInvalidStep3) {
+        setCurrentQuestion(0);
         setStep(4);
         setStepKey((k) => k + 1);
         setStaggerReady(false);
         setErrors([]);
         return;
       }
-      
-      if (currentQuestion >= totalQuestions - 1) {
-        // Transition immediately — no navigateStep delay
+
+      if (isLastQuestion) {
+        // Last question → advance to step 4 immediately
         setCurrentQuestion(0);
         setAnimating(false);
         setStep(4);
@@ -199,7 +199,9 @@ const Index = () => {
         setErrors([]);
         return;
       }
-      setCurrentQuestion(currentQuestion + 1);
+
+      // Next question (use functional update to avoid stale state)
+      setCurrentQuestion((prev) => Math.min(prev + 1, step3Total - 1));
       setStepKey((k) => k + 1);
       setStaggerReady(false);
       setErrors([]);
