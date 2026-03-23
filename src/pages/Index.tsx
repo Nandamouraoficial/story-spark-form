@@ -136,9 +136,10 @@ const Index = () => {
       if (!mentorshipType) errs.push('Selecione o tipo de mentoria');
     }
     if (step === 3) {
-      const answer = answers[currentQuestion];
-      const hasChips = (selectedChips[currentQuestion] || []).length > 0;
-      const hasOther = !!(otherText[currentQuestion] || '').trim();
+      if (isInvalidStep3) return true; // will auto-advance
+      const answer = answers[safeQuestionIndex] ?? '';
+      const hasChips = (selectedChips[safeQuestionIndex] || []).length > 0;
+      const hasOther = !!(otherText[safeQuestionIndex] || '').trim();
       if (!answer.trim() && !hasChips && !hasOther) {
         errs.push('Responda a pergunta antes de continuar');
       } else {
