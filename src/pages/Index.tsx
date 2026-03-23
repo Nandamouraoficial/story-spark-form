@@ -71,25 +71,31 @@ const Index = () => {
 
   const textareaRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
 
+  // ── Step 3 safe derived values (single source of truth) ──
+  const step3Questions = mentorshipType
+    ? (conditionalQuestions[mentorshipType as MentorshipType] || [])
+    : [];
+  const step3Total = step3Questions.length;
+  const safeQuestionIndex = step3Total > 0 ? Math.min(Math.max(currentQuestion, 0), step3Total - 1) : 0;
+  const currentStepQuestion = step3Total > 0 ? step3Questions[safeQuestionIndex] : undefined;
+  const isLastQuestion = step3Total > 0 && safeQuestionIndex >= step3Total - 1;
+  const isInvalidStep3 = !mentorshipType || step3Total === 0;
+
   useEffect(() => {
     const timer = setTimeout(() => setStaggerReady(true), 50);
     return () => clearTimeout(timer);
   }, [stepKey]);
 
-  // Safety: recover from invalid question index via useEffect, never during render
+  // Safety: if we're on step 3 with an out-of-range index, advance to step 4
   useEffect(() => {
-    if (step === 3 && mentorshipType) {
-      const questions = conditionalQuestions[mentorshipType as MentorshipType] || [];
-      if (currentQuestion >= questions.length && questions.length > 0) {
-        
-        setCurrentQuestion(0);
-        setStep(4);
-        setStepKey((k) => k + 1);
-        setStaggerReady(false);
-        setErrors([]);
-      }
+    if (step === 3 && mentorshipType && step3Total > 0 && currentQuestion >= step3Total) {
+      setCurrentQuestion(0);
+      setStep(4);
+      setStepKey((k) => k + 1);
+      setStaggerReady(false);
+      setErrors([]);
     }
-  }, [step, currentQuestion, mentorshipType]);
+  }, [step, currentQuestion, mentorshipType, step3Total]);
 
   const autoResize = (el: HTMLTextAreaElement | null) => {
     if (!el) return;
