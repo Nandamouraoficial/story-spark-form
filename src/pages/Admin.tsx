@@ -9,7 +9,8 @@ import {
   MentorshipType,
   conditionalQuestions,
 } from '@/lib/testimonial-data';
-import { Download, Star, Lock, MessageSquareQuote, Users, TrendingUp, ThumbsUp, ArrowRight, Sparkles, Pencil, Save, LogOut, Mail } from 'lucide-react';
+import { Download, Star, Lock, MessageSquareQuote, Users, TrendingUp, ThumbsUp, ArrowRight, Sparkles, Pencil, Save, LogOut, Mail, Trash2 } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { MarketingOutput } from '@/lib/marketing-types';
 import MarketingModal from '@/components/MarketingModal';
