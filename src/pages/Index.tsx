@@ -249,14 +249,14 @@ const Index = () => {
   };
 
   const handleBack = () => {
-    if (step === 3 && currentQuestion > 0) {
-      setCurrentQuestion(currentQuestion - 1);
+    if (step === 3 && safeQuestionIndex > 0) {
+      setCurrentQuestion((prev) => Math.max(prev - 1, 0));
       setStepKey((k) => k + 1);
       setStaggerReady(false);
       setErrors([]);
       return;
     }
-    if (step === 3 && currentQuestion === 0) {
+    if (step === 3) {
       setCurrentQuestion(0);
     }
     navigateStep(step - 1, 'back');
