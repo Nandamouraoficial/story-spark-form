@@ -129,6 +129,17 @@ const Admin = () => {
     }
   };
 
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase.from('testimonials').delete().eq('id', id);
+      if (error) throw error;
+      setTestimonials((prev) => prev.filter((t) => t.id !== id));
+      toast({ title: 'Excluído', description: 'Depoimento removido com sucesso.' });
+    } catch (err: any) {
+      toast({ title: 'Erro ao excluir', description: err?.message || 'Tente novamente.', variant: 'destructive' });
+    }
+  };
+
   const handleGenerateMarketing = useCallback(async (t: Testimonial) => {
     setMarketingAttribution(`${t.name}, ${t.role} — ${t.company}`);
     setMarketingModal(true);
